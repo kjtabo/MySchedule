@@ -1,12 +1,14 @@
 import { Href, Redirect } from "expo-router";
+import { FIREBASE_AUTH } from "@/FirebaseConfig";
 
-let hasAuth = true;
 // let userType = "therapist";
 let userType = "patient";
 let hrefLink = `/${userType}/home`
 
 export default function Index() {
-    if (hasAuth) {
+    const user = FIREBASE_AUTH.currentUser;
+
+    if (user) {
         return <Redirect href={hrefLink as Href}/>
     }
     else {
