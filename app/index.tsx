@@ -1,11 +1,13 @@
-import { Redirect } from "expo-router";
+import { Href, Redirect } from "expo-router";
 
 let hasAuth = true;
+// let userType = "therapist";
 let userType = "patient";
+let hrefLink = `/${userType}/home`
 
 export default function Index() {
     if (hasAuth) {
-        return <Redirect href="/patient/home" />
+        return <Redirect href={hrefLink as Href}/>
     }
     else {
         return <Redirect href="/login" />

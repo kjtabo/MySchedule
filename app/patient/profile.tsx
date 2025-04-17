@@ -3,15 +3,15 @@ import { styles, gradientColor } from '@/constants/styles';
 import { LinearGradient } from "expo-linear-gradient";
 import React from 'react'
 
-const progress = () => {
+const profile = () => {
   return (
     <LinearGradient
       style={styles.container}
       colors={gradientColor}
     >
-      <Text style={styles.headerStyle}>Progress</Text>
+      <Text style={styles.headerStyle}>Profile</Text>
     </LinearGradient>
   )
 }
 
-export default progress
+export default profile 
