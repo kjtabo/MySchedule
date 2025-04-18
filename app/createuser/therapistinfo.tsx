@@ -4,10 +4,13 @@ import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 
 const therapistinfo = () => {
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
+
+  const usersCollection = collection(db, "users");
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -17,7 +20,17 @@ const therapistinfo = () => {
   const signUp = async () => {
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) updateProfile(auth.currentUser, {displayName: `${firstName} ${lastName}`})
+      if (auth.currentUser) {
+        updateProfile(auth.currentUser, {displayName: `${firstName} ${lastName}`})
+
+        await setDoc(doc(usersCollection, user.user.uid), {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          type: "therapist",
+          uid: user.user.uid,
+        });
+      }
       if (user) router.replace("/therapist/home");
     } catch (error: any) {
       console.log(error);

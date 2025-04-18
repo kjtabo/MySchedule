@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, Button } from 'react-native'
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 
-import { FIREBASE_AUTH } from "@/FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 
 const login = () => {
   const auth = FIREBASE_AUTH;
+  const db = FIREBASE_DB;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,7 +16,11 @@ const login = () => {
   const signIn = async () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
-      if (user) router.replace("/patient/home");
+      if (user) {
+        const docRef = doc(db, "users", user.user.uid);
+        const userData = await getDoc(docRef);
+        router.replace(`/${userData.data()?.type}/home` as Href);
+      }
     } catch (error: any) {
       console.log(error);
       alert("Sign In failed: " + error.message);
