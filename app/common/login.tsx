@@ -2,16 +2,17 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, Button } from 'react-native'
 import { Href, router } from "expo-router";
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
+import { setUserType } from '@/constants/styles';
 
 const login = () => {
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('patient1@test.com');
+  const [password, setPassword] = useState('testtest');
 
   const signIn = async () => {
     try {
@@ -19,6 +20,7 @@ const login = () => {
       if (user) {
         const docRef = doc(db, "users", user.user.uid);
         const userData = await getDoc(docRef);
+        setUserType(userData.data()?.type);
         router.replace(`/${userData.data()?.type}/home` as Href);
       }
     } catch (error: any) {

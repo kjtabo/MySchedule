@@ -6,7 +6,6 @@ const StackLayout = () => {
             <Stack.Screen name="home" options={{ headerShown: false }}/>
             <Stack.Screen name="newactivity" options={{ headerShown: false }}/>
             <Stack.Screen name="notifs" options={{ headerShown: false }}/>
-            <Stack.Screen name="profile" options={{ headerShown: false }}/>
         </Stack>
     )
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Text, SafeAreaView, Button, TextInput } from 'react-native'
+import React, { useState } from 'react';
+import { Text, SafeAreaView, Button, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 
@@ -24,8 +24,8 @@ const therapistinfo = () => {
         updateProfile(auth.currentUser, {displayName: `${firstName} ${lastName}`})
 
         await setDoc(doc(usersCollection, user.user.uid), {
-          firstName: firstName,
-          lastName: lastName,
+          firstName: firstName.toLowerCase(),
+          lastName: lastName.toLowerCase(),
           email: email,
           type: "therapist",
           uid: user.user.uid,

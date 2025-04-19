@@ -1,41 +1,30 @@
 import { StyleSheet } from "react-native";
 
+let userType: string | undefined;
+
+export function setUserType(type: string) {
+    userType = type;
+}
+
+export function getUserType() {
+    return userType;
+}
+
 export const gradientColor = ["#dbfff2", "#689dc4"] as const;
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "space-between"
     },
     headerStyle: {
-        fontFamily: "Genty-Sans-Regular",
         alignSelf: "center",
-        fontWeight: "bold",
+        fontWeight: "black",
         fontSize: 32,
-        marginTop: 10
+        marginTop: 30
     },
     navButtonContainer: {
-        marginBottom: 20,
-        justifyContent: "center",
-        flexDirection: "row",
+        height: 15,
+        alignSelf: "center",
+        flexWrap: "wrap",
     },
-    navButtonLogo: {
-        width: 70,
-        height: 70,
-        backgroundColor: "white",
-    },
-    navButtonBackground: {
-        width: 105,
-        height: 105,
-        marginInline: 10,
-        borderRadius: 30,
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden"
-    },
-    navButtonText: {
-        fontWeight: "bold", 
-        fontSize: 15,
-        marginTop: -5,
-    }
 });

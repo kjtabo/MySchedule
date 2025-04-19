@@ -1,9 +1,8 @@
-import { styles } from "@/constants/styles"
 import whiteBox from '@/assets/images/white-box.png';
 import { Href, router } from "expo-router"
-import { Text, ImageBackground, Image, Pressable } from "react-native"
+import { Text, ImageBackground, Image, Pressable, StyleSheet } from "react-native"
 
-const NavigationButton = ({ 
+export const NavigationButton = ({ 
         name,
         icon,
         navTo,
@@ -15,17 +14,37 @@ const NavigationButton = ({
     return (
         <Pressable onPress={() => router.push(navTo as Href)}>
             <ImageBackground
-                style={styles.navButtonBackground}
+                style={navButtonStyles.navButtonBackground}
                 source={whiteBox}
             >
                 <Image
-                    style={styles.navButtonLogo}
+                    style={navButtonStyles.navButtonLogo}
                     source={icon}
                 />
-                <Text style={styles.navButtonText}>{name}</Text>
+                <Text style={navButtonStyles.navButtonText}>{name}</Text>
             </ImageBackground>
         </Pressable>
     )
 }
 
-export default NavigationButton;
+const navButtonStyles = StyleSheet.create({
+    navButtonLogo: {
+        width: 65,
+        height: 65,
+        backgroundColor: "white",
+    },
+    navButtonBackground: {
+        width: 105,
+        height: 105,
+        marginInline: 10,
+        borderRadius: 50,
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden"
+    },
+    navButtonText: {
+        fontWeight: "bold", 
+        fontSize: 12,
+        marginTop: -5,
+    }
+});

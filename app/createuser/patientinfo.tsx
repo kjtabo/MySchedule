@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Text, SafeAreaView, Button, TextInput } from 'react-native'
+import React, { useState } from 'react';
+import { Text, SafeAreaView, Button, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
@@ -22,16 +22,16 @@ const patientinfo = () => {
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
-        updateProfile(auth.currentUser, {displayName: `${firstName} ${lastName}`})
+        updateProfile(auth.currentUser, {displayName: `${firstName} ${lastName}`});
 
         await setDoc(doc(usersCollection, user.user.uid), {
-          firstName: firstName,
-          lastName: lastName,
+          firstName: firstName.toLowerCase(),
+          lastName: lastName.toLowerCase(),
           email: email,
           type: "patient",
           conditions: conditions,
           uid: user.user.uid,
-        })
+        });
       }
       if (user) router.replace("/patient/home");
     } catch (error: any) {

@@ -28,6 +28,7 @@ const selectusertype = () => {
     >
         <SafeAreaView>
             <Text style={styles.headerStyle}>Select role</Text>
+
             <Pressable
                 onPressIn={() => {
                     isTherapist = !isTherapist;
@@ -43,6 +44,7 @@ const selectusertype = () => {
                     <Text>therapist</Text>
                 </ImageBackground>
             </Pressable>
+
             <Pressable
                 onPressIn={() => {
                     isTherapist = false;
@@ -58,7 +60,9 @@ const selectusertype = () => {
                     <Text>patient</Text>
                 </ImageBackground>
             </Pressable>
-            <Button title='Back to Login' onPress={() => router.replace("/login")}/>
+
+            <Button title='Back to Login' onPress={() => router.replace("/common/login")}/>
+
             <Button title='Next' onPress={() => {
                     if (isPatient) router.push('/createuser/patientinfo')
                     else if (isTherapist) router.push('/createuser/therapistinfo')
