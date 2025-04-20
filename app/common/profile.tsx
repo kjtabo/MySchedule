@@ -85,7 +85,7 @@ const profile = () => {
         <NavigationButton
           name={"Home"}
           icon={homeIcon}
-          navTo={`/${userCounterpart.toLowerCase()}/home`}
+          navTo={`/${userType}/home`}
         />
       </SafeAreaView>
     </LinearGradient>
