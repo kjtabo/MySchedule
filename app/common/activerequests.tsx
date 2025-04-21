@@ -1,11 +1,27 @@
-import { StyleSheet, Text, SafeAreaView, Pressable, ImageBackground, FlatList, Button } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import whiteBox from '@/assets/images/white-box.png';
-import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import { LinearGradient } from 'expo-linear-gradient';
-import { getUserType, gradientColor, styles } from '@/constants/styles';
+import { 
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  Pressable,
+  ImageBackground,
+  FlatList,
+  Button
+} from 'react-native'
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where
+} from 'firebase/firestore';
 import Modal from "react-native-modal";
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
+import { getUserType, gradientColor, styles } from '@/constants/styles';
+import whiteBox from '@/assets/images/white-box.png';
 
 type ItemData = {
     displayName: string,
@@ -29,7 +45,6 @@ const activerequests = () => {
   useEffect(() => {
     fetchRequests();
   }, [user])
-
 
   const fetchRequests = async () => {
     if (user) {
@@ -73,7 +88,7 @@ const activerequests = () => {
           style={tabStyles.buttonContainer}
           source={whiteBox}
         >
-          <Text>{`${item.displayName}`}</Text>
+          <Text>{item.displayName}</Text>
           <Modal isVisible={isModalVisible}>
             <SafeAreaView>
               <ImageBackground
@@ -93,7 +108,7 @@ const activerequests = () => {
 
   return (
     <LinearGradient
-      style={styles.container}
+      style={styles.backgroundContainer}
       colors={gradientColor}
     >
       <Text style={styles.headerStyle}>Requests</Text>

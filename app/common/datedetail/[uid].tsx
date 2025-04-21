@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Text, SafeAreaView, Pressable, ImageBackground } from 'react-native'
+import { Text, SafeAreaView, ImageBackground, TextInput, StyleSheet } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
-import { gradientColor, styles } from '@/constants/styles'
+import { getUserType, gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
 import homeIcon from '@/assets/images/home.png';
+import calendarIcon from '@/assets/images/calendar.png';
 import whiteBox from '@/assets/images/white-box.png';
 import Calendar from '@/components/calendar'
 
@@ -16,14 +17,16 @@ const getDateToday = () => {
   return date.toISOString().split("T")[0];
 }
 
-const schedule = () => {
+const datedetail = () => {
   const { uid } = useLocalSearchParams();
 
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
 
   const user = auth.currentUser;
+  const userType = getUserType();
 
+  const [remarks, setRemarks] = useState("");
   const [patientData, setPatientData] = useState<any>([]);
   const [calendarItems, setCalendarItems] = useState<any>({});
 
@@ -39,23 +42,6 @@ const schedule = () => {
     setPatientData(data.data());
   }
 
-  const renderItem = (item: any) => {
-    return (
-      <Pressable onPress={() => console.log(item.name)}>
-        <ImageBackground 
-          source={whiteBox}
-          style={{ 
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center" 
-          }}
-        >
-          <Text>{item.name}</Text>
-        </ImageBackground>
-      </Pressable>
-    );
-  };
-
   return (
     <LinearGradient
       style={styles.backgroundContainer}
@@ -63,17 +49,51 @@ const schedule = () => {
     >
       <SafeAreaView style={styles.contentContainer}>
         <Text style={styles.headerStyle}>Schedule</Text>
-        <Calendar renderItem={renderItem}/> 
+        <ImageBackground
+          style={tabStyles.tasksContainer}
+          source={whiteBox}
+        >
+          <Text>month task</Text>
+        </ImageBackground>
+        <ImageBackground
+          style={tabStyles.tasksContainer}
+          source={whiteBox}
+        >
+          <TextInput
+            style={{ marginLeft: 10 }}
+            placeholder='Remarks'
+            value={remarks}
+            onChangeText={setRemarks}
+          />
+        </ImageBackground>
       </SafeAreaView>
       <SafeAreaView style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Home'}
           icon={homeIcon}
-          navTo={"/patient/home"}
+          navTo={`/${userType}/home`}
+        />
+        <NavigationButton 
+          isNavButton={false}
+          name={'Schedule'}
+          icon={calendarIcon}
         />
       </SafeAreaView>
     </LinearGradient>
   )
 }
 
-export default schedule 
+const tabStyles = StyleSheet.create({
+  tasksContainer: {
+    height: 100,
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+    borderRadius: 30,
+    justifyContent: "center",
+    resizeMode: "cover",
+    overflow: "hidden"
+  }
+});
+
+export default datedetail 

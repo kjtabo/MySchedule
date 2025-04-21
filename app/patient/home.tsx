@@ -1,30 +1,36 @@
 import React from 'react'
-import { ImageBackground, Text, View, StyleSheet } from 'react-native'
+import { ImageBackground, Text, StyleSheet } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { styles, gradientColor } from '@/constants/styles';
+import { NavigationButton } from '@/components/nav-button';
 import whiteBox from '@/assets/images/white-box.png';
 import progressIcon from '@/assets/images/graph.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import profileIcon from '@/assets/images/person.png';
-import { NavigationButton } from '@/components/nav-button';
 
 const home = () => {
   return (
     <LinearGradient
-    style={styles.container}
+    style={styles.backgroundContainer}
     colors={gradientColor}
     >
-      <Text style={styles.headerStyle}>Home</Text>
-
-      <ImageBackground
+      <SafeAreaView style={styles.contentContainer}>
+        <SafeAreaView style={{ height: 300 }}>
+          <Text style={styles.headerStyle}>Today's Task</Text>
+          <Text>Task #1</Text>
+          <Text>Task #2</Text>
+          <Text>Task #3</Text>
+          <Text>Task #4</Text>
+        </SafeAreaView>
+        <ImageBackground
           style={tabStyles.profileContainer}
           source={whiteBox}
         >
-          <Text>Hi</Text>
-      </ImageBackground>
-
+          <Text>Reminders</Text>
+        </ImageBackground>
+      </SafeAreaView>
       <SafeAreaView style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Schedule'}

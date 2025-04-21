@@ -3,28 +3,48 @@ import { Href, router } from "expo-router"
 import { Text, ImageBackground, Image, Pressable, StyleSheet } from "react-native"
 
 export const NavigationButton = ({ 
+    isNavButton=true,
     name,
     icon,
     navTo,
   }: {
+    isNavButton?: boolean,
     name: string,
     icon: any,
-    navTo: string,
+    navTo?: string,
   }) => {
-  return (
-    <Pressable onPress={() => router.push(navTo as Href)}>
-      <ImageBackground
-        style={navButtonStyles.navButtonBackground}
-        source={whiteBox}
-      >
-        <Image
-          style={navButtonStyles.navButtonLogo}
-          source={icon}
-        />
-        <Text style={navButtonStyles.navButtonText}>{name}</Text>
-      </ImageBackground>
-    </Pressable>
-  )
+  if (isNavButton) {
+    return (
+      <Pressable onPress={() => router.push(navTo as Href)}>
+        <ImageBackground
+          style={navButtonStyles.navButtonBackground}
+          source={whiteBox}
+        >
+          <Image
+            style={navButtonStyles.navButtonLogo}
+            source={icon}
+          />
+          <Text style={navButtonStyles.navButtonText}>{name}</Text>
+        </ImageBackground>
+      </Pressable>
+    )
+  }
+  else {
+    return (
+      <Pressable onPress={() => router.back()}>
+        <ImageBackground
+          style={navButtonStyles.navButtonBackground}
+          source={whiteBox}
+        >
+          <Image
+            style={navButtonStyles.navButtonLogo}
+            source={icon}
+          />
+          <Text style={navButtonStyles.navButtonText}>{name}</Text>
+        </ImageBackground>
+      </Pressable>
+    )
+  }
 }
 
 const navButtonStyles = StyleSheet.create({

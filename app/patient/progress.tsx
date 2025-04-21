@@ -6,7 +6,7 @@ import React from 'react'
 const progress = () => {
   return (
     <LinearGradient
-      style={styles.container}
+      style={styles.backgroundContainer}
       colors={gradientColor}
     >
       <Text style={styles.headerStyle}>Progress</Text>

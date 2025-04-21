@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 
 const therapistinfo = () => {
   const auth = FIREBASE_AUTH;

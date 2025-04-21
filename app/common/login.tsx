@@ -11,7 +11,7 @@ const login = () => {
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
 
-  const [email, setEmail] = useState('patient1@test.com');
+  const [email, setEmail] = useState('therapist1@test.com');
   const [password, setPassword] = useState('testtest');
 
   const signIn = async () => {

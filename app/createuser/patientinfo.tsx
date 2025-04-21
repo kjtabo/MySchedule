@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, SafeAreaView, Button, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
-import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
+import { collection, setDoc, doc } from 'firebase/firestore';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 

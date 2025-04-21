@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text, SafeAreaView, Pressable, ImageBackground } from 'react-native'
+import { Text, SafeAreaView } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -8,7 +8,8 @@ import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
 import homeIcon from '@/assets/images/home.png';
-import whiteBox from '@/assets/images/white-box.png';
+import progressIcon from '@/assets/images/graph.png';
+import editIcon from '@/assets/images/edit.png';
 import Calendar from '@/components/calendar'
 
 const getDateToday = () => {
@@ -16,7 +17,7 @@ const getDateToday = () => {
   return date.toISOString().split("T")[0];
 }
 
-const schedule = () => {
+const patientdetail = () => {
   const { uid } = useLocalSearchParams();
 
   const auth = FIREBASE_AUTH;
@@ -39,41 +40,34 @@ const schedule = () => {
     setPatientData(data.data());
   }
 
-  const renderItem = (item: any) => {
-    return (
-      <Pressable onPress={() => console.log(item.name)}>
-        <ImageBackground 
-          source={whiteBox}
-          style={{ 
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center" 
-          }}
-        >
-          <Text>{item.name}</Text>
-        </ImageBackground>
-      </Pressable>
-    );
-  };
-
   return (
     <LinearGradient
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
       <SafeAreaView style={styles.contentContainer}>
-        <Text style={styles.headerStyle}>Schedule</Text>
-        <Calendar renderItem={renderItem}/> 
+        <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
+        <Calendar data={{uid: uid}}/> 
       </SafeAreaView>
       <SafeAreaView style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Home'}
           icon={homeIcon}
-          navTo={"/patient/home"}
+          navTo={"therapist/home"}
+        />
+        <NavigationButton 
+          name={'Progress'}
+          icon={progressIcon}
+          navTo={`/therapist/progress/${uid}`}
+        />
+        <NavigationButton 
+          name={'New Activity'}
+          icon={editIcon}
+          navTo={`/therapist/newactivity/${uid}`}
         />
       </SafeAreaView>
     </LinearGradient>
   )
 }
 
-export default schedule 
+export default patientdetail

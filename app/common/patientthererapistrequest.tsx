@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react'
 import { 
   StyleSheet,
   Text,
@@ -8,16 +9,25 @@ import {
   ImageBackground,
   Button,
 } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import {
+  and,
+  collection,
+  doc,
+  getDocs,
+  or,
+  query,
+  setDoc,
+  where
+} from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
-import { getUserType, gradientColor, styles } from '@/constants/styles'
-import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
-import { and, collection, doc, getDoc, getDocs, or, query, Query, setDoc, where } from 'firebase/firestore'
-import homeIcon from '@/assets/images/home.png';
-import whiteBox from '@/assets/images/white-box.png';
-import { NavigationButton } from '@/components/nav-button'
 import { router } from 'expo-router'
 import Modal from 'react-native-modal'
+
+import { getUserType, gradientColor, styles } from '@/constants/styles'
+import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
+import { NavigationButton } from '@/components/nav-button'
+import homeIcon from '@/assets/images/home.png';
+import whiteBox from '@/assets/images/white-box.png';
 
 type ItemData = {
   firstName: string,
@@ -111,22 +121,24 @@ const patientthererapistrequest = () => {
 
   return (
     <LinearGradient
-      style={styles.container}
+      style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <Text style={styles.headerStyle}>Request</Text>
-      <Button title="Check received requests" onPress={() => router.push("/common/activerequests")}/>
-      <TextInput
-        placeholder={`Search for a ${userCounterpart}`} 
-        value={toQuery}
-        onChangeText={(text) => {setToQuery(text); fetchQueriedUsers();}}
-      />
-      <FlatList
-        style={{ height: 150 }}
-        data={queriedUsers}
-        renderItem={renderItem}
-        keyExtractor={item => item.uid}
-      />
+      <SafeAreaView style={styles.contentContainer}>
+        <Text style={styles.headerStyle}>Request</Text>
+        <Button title="Check received requests" onPress={() => router.push("/common/activerequests")}/>
+        <TextInput
+          placeholder={`Search for a ${userCounterpart}`} 
+          value={toQuery}
+          onChangeText={(text) => {setToQuery(text); fetchQueriedUsers();}}
+        />
+        <FlatList
+          style={{ height: 150 }}
+          data={queriedUsers}
+          renderItem={renderItem}
+          keyExtractor={item => item.uid}
+        />
+      </SafeAreaView>
       <SafeAreaView style={styles.navButtonContainer}>
         <NavigationButton
           name={"Home"}
@@ -139,16 +151,16 @@ const patientthererapistrequest = () => {
 }
 
 const tabStyles = StyleSheet.create({
-    buttonText: {
-    },
-    buttonContainer: {
-        height: 80,
-        marginTop: 5,
-        marginLeft: 20,
-        marginRight: 20,
-        borderRadius: 30,
-        justifyContent: "center",
-        overflow: "hidden"
+  buttonText: {
+  },
+  buttonContainer: {
+      height: 80,
+      marginTop: 5,
+      marginLeft: 20,
+      marginRight: 20,
+      borderRadius: 30,
+      justifyContent: "center",
+      overflow: "hidden"
   },
   modalContainer: {
     height: 80,

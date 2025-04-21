@@ -13,8 +13,11 @@ export function getUserType() {
 export const gradientColor = ["#dbfff2", "#689dc4"] as const;
 
 export const styles = StyleSheet.create({
-  container: {
+  backgroundContainer: {
     flex: 1,
+  },
+  contentContainer: {
+    flex: 0.85,
   },
   headerStyle: {
     alignSelf: "center",
