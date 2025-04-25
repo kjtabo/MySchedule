@@ -41,7 +41,13 @@ const profile = () => {
           style={tabStyles.profileContainer}
           source={whiteBox}
         >
-          <Text>Hi</Text>
+          {userType === "patient" && (
+            <Text style={tabStyles.profileText}>Patient</Text>
+          )}
+
+          {userType === "therapist" && (
+            <Text style={tabStyles.profileText}>Therapist</Text>
+          )}
         </ImageBackground>
 
         <Pressable onPress={() => {router.push("/common/patientthererapistrequest")}}>
@@ -102,7 +108,8 @@ const profile = () => {
 
 const tabStyles = StyleSheet.create({
   profileText: {
-
+    fontSize: 20,
+    fontWeight: "bold"
   },
   buttonText: {
     marginLeft: 20,
@@ -114,6 +121,7 @@ const tabStyles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 30,
+    padding: 30,
     resizeMode: "cover",
     overflow: "hidden"
   },

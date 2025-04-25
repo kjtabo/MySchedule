@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { View, ImageBackground, Pressable, Text, StyleSheet } from 'react-native';
-import {Agenda} from 'react-native-calendars';
+import { Agenda } from 'react-native-calendars';
 import whiteBox from '@/assets/images/white-box.png';
 import { Href, router } from 'expo-router';
 
@@ -9,10 +9,23 @@ const getDateToday = () => {
   return date.toISOString().split("T")[0];
 }
 
+const getMinMaxDates = () => {
+  const min_date = new Date();
+  const max_date = new Date();
+  
+  min_date.setMonth(min_date.getMonth() - 1);
+  max_date.setMonth(max_date.getMonth() + 1);
+
+  return [
+    min_date.toISOString().split("T")[0],
+    max_date.toISOString().split("T")[0]
+  ];
+}
+
 const Calendar = (data: any) => {
   const [items, setItems] = useState({});
 
-  // "YYYY-MM-DD": [{"height": number, "name": string},]
+  // "YYYY-MM-DD": [{"name": string},]
   const taskData = {
     "2025-04-21": [{"name": "grocery"}, {"name": "bath"}, {"name": "shit"}],
     "2025-04-22": [{"name": "grocery"}, {"name": "bath"}, {"name": "shit"}],
@@ -45,11 +58,14 @@ const Calendar = (data: any) => {
   return (
     <View style={calendarStyles.calendarContainer}>
       <Agenda
-        items={taskData}
+        items={data.items}
+        loadItemsForMonth={data.itemsFunc}
         selected={getDateToday()}
         renderItem={renderItem}
         renderEmptyDate={renderEmptyDate}
         showClosingKnob={true}
+        minDate={getMinMaxDates()[0]}
+        maxDate={getMinMaxDates()[1]}
       />
     </View>
   );

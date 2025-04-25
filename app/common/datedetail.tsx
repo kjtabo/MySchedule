@@ -10,15 +10,11 @@ import { NavigationButton } from '@/components/nav-button'
 import homeIcon from '@/assets/images/home.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import whiteBox from '@/assets/images/white-box.png';
-import Calendar from '@/components/calendar'
-
-const getDateToday = () => {
-  const date = new Date();
-  return date.toISOString().split("T")[0];
-}
 
 const datedetail = () => {
-  const { uid } = useLocalSearchParams();
+  const params = useLocalSearchParams<{uid: string, taskName: string}>();
+  const uid = params.uid;
+  const taskName = params.taskName;
 
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
@@ -27,19 +23,17 @@ const datedetail = () => {
   const userType = getUserType();
 
   const [remarks, setRemarks] = useState("");
-  const [patientData, setPatientData] = useState<any>([]);
-  const [calendarItems, setCalendarItems] = useState<any>({});
-
-  console.log(getDateToday());
+  const [taskData, setTaskData] = useState<any>({});
 
   useEffect(() => {
-    fetchPatientData();
+    fetchTaskInfo();
   }, [user]);
 
-  const fetchPatientData = async () => {
-    const docRef = doc(db, "users", `${uid}`);
+  const fetchTaskInfo = async () => {
+    const docRef = doc(db, `users/${uid}/tasks/${taskName}`);
     const data = await getDoc(docRef);
-    setPatientData(data.data());
+    setTaskData(data.data());
+    console.log("ass", taskData);
   }
 
   return (
@@ -53,7 +47,7 @@ const datedetail = () => {
           style={tabStyles.tasksContainer}
           source={whiteBox}
         >
-          <Text>month task</Text>
+          <Text>{taskName}</Text>
         </ImageBackground>
         <ImageBackground
           style={tabStyles.tasksContainer}

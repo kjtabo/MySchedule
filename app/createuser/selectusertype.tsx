@@ -23,7 +23,7 @@ const selectusertype = () => {
 
   return (
     <LinearGradient
-      style={styles.container}
+      style={styles.backgroundContainer}
       colors={gradientColor}
     >
       <SafeAreaView>
