@@ -1,6 +1,12 @@
+import {
+  Text,
+  ImageBackground,
+  Image,
+  Pressable,
+  StyleSheet
+} from "react-native"
 import whiteBox from '@/assets/images/white-box.png';
 import { Href, router } from "expo-router"
-import { Text, ImageBackground, Image, Pressable, StyleSheet } from "react-native"
 
 export const NavigationButton = ({ 
     isNavButton=true,
@@ -11,7 +17,7 @@ export const NavigationButton = ({
     isNavButton?: boolean,
     name: string,
     icon: any,
-    navTo?: string,
+    navTo?: string | any,
   }) => {
   if (isNavButton) {
     return (

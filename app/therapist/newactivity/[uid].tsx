@@ -9,8 +9,8 @@ import {
   TextInput,
   View
 } from 'react-native'
-import { Href, router, useLocalSearchParams } from 'expo-router';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { Href, router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -30,16 +30,21 @@ const newactivity = () => {
 
   const user = auth.currentUser;
 
-  const [activityName, setActivityName] = useState("");
   const [patientData, setPatientData] = useState<any>([]);
+  const [taskName, setTaskName] = useState("");
   const [taskDetails, setTaskDetails] = useState('');
+
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [deadline, setDeadline] = useState(new Date(2000));
 
-  const [startDateTitle, setStartDateTitle] = useState("set start date");
-  const [endDateTitle, setEndDateTitle] = useState("set end date");
+  const [startDateTitle, setStartDateTitle] = useState("");
+  const [endDateTitle, setEndDateTitle] = useState("");
+  const [deadlineTitle, setDeadlineTitle] = useState("");
+
   const [isSelectStartOpen, setSelectStartOpen] = useState(false);
   const [isSelectEndOpen, setSelectEndOpen] = useState(false);
+  const [isDeadlineOpen, setDeadlineOpen] = useState(false);
 
   const [isSelectedM, setSelectedM] = useState(false);
   const [isSelectedT, setSelectedT] = useState(false);
@@ -59,9 +64,12 @@ const newactivity = () => {
     setPatientData(data.data());
   }
 
-  const getDates = () => {
+  const getDateTimes = () => {
     const selectedDays = [isSelectedSu, isSelectedM, isSelectedT, isSelectedW, isSelectedTh, isSelectedF, isSelectedSa];
     let datesList = [];
+
+    if (startDate.toISOString().split("T")[0] == endDate.toISOString().split("T")[0])
+      return [startDate.toISOString().split("T")[0]];
 
     while (startDate.toISOString().split("T")[0] != endDate.toISOString().split("T")[0]) {
       const currentDate = startDate;
@@ -71,6 +79,7 @@ const newactivity = () => {
       
       startDate.setDate(startDate.getDate() + 1);
     }
+
     return datesList;
   }
 
@@ -125,6 +134,18 @@ const newactivity = () => {
     }
   };
 
+  const onChangeDeadline = ({type}: {type: any}, selectedDate: any) => {
+    if (type == "set") {
+      const currentDate = selectedDate;
+      setDeadline(currentDate);
+
+      if (Platform.OS === "android") {
+        setDeadlineTitle(currentDate.toTimeString())
+        setDeadlineOpen(false);
+      }
+    }
+  }
+
   const confirmStartIOS = () => {
     setStartDateTitle(startDate.toDateString());
     setSelectStartOpen(false);
@@ -134,21 +155,45 @@ const newactivity = () => {
     setEndDateTitle(endDate.toDateString());
     setSelectEndOpen(false);
   }
+
+  const confirmDeadlineIOS = () => {
+    setDeadlineTitle(deadline.toTimeString())
+    setDeadlineOpen(false);
+  }
  
   const submitActivity = async () => {
-    const dates = getDates();
+    const selectedDays = [
+      isSelectedSu,
+      isSelectedM,
+      isSelectedT,
+      isSelectedW,
+      isSelectedTh,
+      isSelectedF,
+      isSelectedSa
+    ];
+    if (
+      taskName.length == 0 
+      || taskDetails.length == 0 
+      || new Date(startDate) == new Date()
+      || new Date(endDate) == new Date()
+      || selectedDays.every(element => element === false)
+    ) {
+      alert("Please answer all required fields.");
+      return
+    }
 
-    console.log(uid);
+    const dateTimes = getDateTimes();
+
     const patientTasksCollection = collection(db, `/users/${uid}/tasks`);
-    await setDoc(doc(patientTasksCollection, activityName), {
+    await setDoc(doc(patientTasksCollection, taskName), {
       from: user?.uid,
-      name: activityName,
+      name: taskName,
       details: taskDetails,
-      dates: dates,
-      isDone: false,
+      dates: dateTimes,
+      deadline: deadline,
+      doneDates: [],
     });
-
-    console.log("ass")
+    console.log("new activity uploaded");
     router.replace(`/therapist/details/${uid}` as Href);
   }
 
@@ -157,9 +202,11 @@ const newactivity = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={styles.contentContainer}>
+      <View style={styles.headerContainer}>
         <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
-
+      </View>
+      
+      <SafeAreaView style={styles.contentContainer}>
         {/* Task Name */}
         <ImageBackground
           style={tabStyles.nameContainer}
@@ -168,8 +215,8 @@ const newactivity = () => {
           <TextInput 
             style={{ marginLeft: 10 }}
             placeholder='Activity'
-            value={activityName}
-            onChangeText={setActivityName}
+            value={taskName}
+            onChangeText={setTaskName}
           />
         </ImageBackground>
 
@@ -191,34 +238,52 @@ const newactivity = () => {
           style={tabStyles.setDateContainer}
           source={whiteBox}
         >
-          <Button title={startDateTitle} onPress={() => setSelectStartOpen(true)}/>
-          <Button title={endDateTitle} onPress={() => setSelectEndOpen(true)}/>
-          {isSelectStartOpen && (
+          <Pressable onPress={() => setSelectStartOpen(!isSelectStartOpen)}>
+            <Text style={{ fontWeight: "bold" }}>Set start date</Text>
+            <TextInput
+              placeholder="Set start date"
+              value={startDateTitle}
+              placeholderTextColor="#C4C4C4"
+              editable={false}
+            />
+          </Pressable>
+          <Pressable onPress={() => setSelectEndOpen(!isSelectEndOpen)}>
+            <Text style={{ fontWeight: "bold" }}>Set end date</Text>
+            <TextInput
+              placeholder="Set end date"
+              value={endDateTitle}
+              placeholderTextColor="#C4C4C4"
+              editable={false}
+            />
+          </Pressable>
+        </ImageBackground>
+
+        {/* Set Deadline */}
+        <ImageBackground
+          style={tabStyles.setDeadlineContainer}
+          source={whiteBox}
+        >
+          <Pressable onPress={() => setDeadlineOpen(!isDeadlineOpen)}>
+            <Text style={{ fontWeight: "bold" }}>Set daily deadline (Optional)</Text>
+            <TextInput
+              placeholder="Set deadline"
+              value={deadlineTitle}
+              placeholderTextColor="#C4C4C4"
+              editable={false}
+            />
+          </Pressable>
+          {isDeadlineOpen && (
             <DateTimePicker
-              mode='date'
+              mode='time'
               display='spinner'
-              value={startDate}
-              onChange={onChangeStart}
+              value={deadline}
+              onChange={onChangeDeadline}
             />
           )}
-          {isSelectStartOpen && Platform.OS === "ios" && (
+          {isDeadlineOpen && Platform.OS === "ios" && (
             <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
-              <Button title="cancel" onPress={() => setSelectStartOpen(false)}/>
-              <Button title="submit" onPress={confirmStartIOS}/>
-            </View>
-          )} 
-          {isSelectEndOpen && (
-            <DateTimePicker
-              mode='date'
-              display='spinner'
-              value={endDate}
-              onChange={onChangeEnd}
-            />
-          )}
-          {isSelectEndOpen && Platform.OS === "ios" && (
-            <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
-              <Button title="cancel" onPress={() => setSelectEndOpen(false)}/>
-              <Button title="submit" onPress={confirmEndIOS}/>
+              <Button title="cancel" onPress={() => setDeadlineOpen(false)}/>
+              <Button title="submit" onPress={confirmDeadlineIOS}/>
             </View>
           )} 
         </ImageBackground>
@@ -228,8 +293,24 @@ const newactivity = () => {
           style={tabStyles.setRepeatContainer}
           source={whiteBox}
         >
-          <Text style={{ marginLeft: 20, marginTop: 13 }}>Select Days</Text>
+          <Text style={{ marginLeft: 20, marginTop: 13, fontWeight: "bold" }}>Select Days</Text>
           <View style={tabStyles.selectableDayContainer}>
+            {/* Sunday */}
+            <Pressable
+              onPressIn={() => {
+                setSelectedSu(!isSelectedSu);
+                forceUpdate();
+              }} 
+            >
+              <ImageBackground
+                style={tabStyles.selectableDay}
+                source={whiteBox}
+                tintColor={getTint("Su")}
+              >
+                <Text>Su</Text>
+              </ImageBackground>
+            </Pressable>
+
             {/* Monday */}
             <Pressable
               onPressIn={() => {
@@ -325,22 +406,6 @@ const newactivity = () => {
                 <Text>Sa</Text>
               </ImageBackground>
             </Pressable>
-
-            {/* Sunday */}
-            <Pressable
-              onPressIn={() => {
-                setSelectedSu(!isSelectedSu);
-                forceUpdate();
-              }} 
-            >
-              <ImageBackground
-                style={tabStyles.selectableDay}
-                source={whiteBox}
-                tintColor={getTint("Su")}
-              >
-                <Text>Su</Text>
-              </ImageBackground>
-            </Pressable>
           </View>
         </ImageBackground>
 
@@ -352,14 +417,45 @@ const newactivity = () => {
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>Save Task</Text>
           </ImageBackground>
         </Pressable>
+        {isSelectStartOpen && (
+          <DateTimePicker
+            mode='date'
+            display='spinner'
+            value={startDate}
+            minimumDate={new Date()}
+            onChange={onChangeStart}
+          />
+        )}
+        {isSelectStartOpen && Platform.OS === "ios" && (
+          <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
+            <Button title="cancel" onPress={() => setSelectStartOpen(false)}/>
+            <Button title="submit" onPress={confirmStartIOS}/>
+          </View>
+        )} 
+        {isSelectEndOpen && (
+          <DateTimePicker
+            mode='date'
+            display='spinner'
+            value={endDate}
+            minimumDate={new Date()}
+            onChange={onChangeEnd}
+          />
+        )}
+        {isSelectEndOpen && Platform.OS === "ios" && (
+          <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
+            <Button title="cancel" onPress={() => setSelectEndOpen(false)}/>
+            <Button title="submit" onPress={confirmEndIOS}/>
+          </View>
+        )} 
       </SafeAreaView>
-      <SafeAreaView style={styles.navButtonContainer}>
+
+      <View style={styles.navButtonContainer}>
         <NavigationButton
           name={'Home'}
           icon={homeIcon}
           navTo={"/therapist/home"}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   )
 }
@@ -386,10 +482,24 @@ const tabStyles = StyleSheet.create({
     overflow: "hidden"
   },
   setDateContainer: {
+    height: 150,
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+    paddingVertical: 13,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    justifyContent: "center",
+    resizeMode: "cover",
+    overflow: "hidden"
+  },
+  setDeadlineContainer: {
     height: 100,
     marginTop: 5,
     marginLeft: 20,
     marginRight: 20,
+    paddingVertical: 13,
+    paddingHorizontal: 20, 
     borderRadius: 30,
     justifyContent: "center",
     resizeMode: "cover",

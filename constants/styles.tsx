@@ -17,18 +17,27 @@ export const styles = StyleSheet.create({
     flex: 1,
     minHeight: "auto"
   },
+  headerContainer: {
+    flex: 0.12,
+    justifyContent: "flex-end",
+    // backgroundColor: "blue"
+  },
+  homeContainer: {
+    flex: 0.7
+  },
   contentContainer: {
-    flex: 0.85,
+    flex: 0.7,
+    overflow: "scroll"
   },
   headerStyle: {
-    fontSize: 32,
-    marginTop: 30,
+    fontSize: 40,
     alignSelf: "center",
     fontWeight: "bold"
   },
   navButtonContainer: {
-    height: 15,
-    alignSelf: "center",
-    flexWrap: "wrap",
+    flex: 0.18,
+    flexDirection: "row",
+    justifyContent: "center",
+    // backgroundColor: "blue"
   },
 });

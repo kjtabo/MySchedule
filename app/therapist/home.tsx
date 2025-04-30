@@ -4,7 +4,8 @@ import {
   FlatList,
   ImageBackground,
   Pressable,
-  Text
+  Text,
+  View
 } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,7 +51,7 @@ const home = () => {
           style={tabStyles.buttonContainer}
           source={whiteBox}
         >
-          <Text>{item.displayName}</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.displayName}</Text>
         </ImageBackground>
       </Pressable>
     )
@@ -61,14 +62,18 @@ const home = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={styles.contentContainer}>
+      <View style={styles.headerContainer}>
         <Text style={styles.headerStyle}>Patient Carryover</Text>
+      </View>
+
+      <SafeAreaView style={styles.homeContainer}>
         <FlatList
           data={patients}
           renderItem={renderItem}
         />
       </SafeAreaView>
-      <SafeAreaView style={styles.navButtonContainer}>
+
+      <View style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Notifications'}
           icon={notifsIcon}
@@ -79,7 +84,7 @@ const home = () => {
           icon={profileIcon}
           navTo={'/common/profile'}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   )
 }
@@ -87,9 +92,9 @@ const home = () => {
 const tabStyles = StyleSheet.create({
  buttonContainer: {
     height: 80,
-    marginTop: 5,
-    marginLeft: 20,
-    marginRight: 20,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    paddingHorizontal: 20,
     borderRadius: 30,
     justifyContent: "center",
     overflow: "hidden"

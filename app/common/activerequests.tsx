@@ -6,7 +6,7 @@ import {
   Pressable,
   ImageBackground,
   FlatList,
-  Button
+  View,
 } from 'react-native'
 import {
   collection,
@@ -22,6 +22,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { getUserType, gradientColor, styles } from '@/constants/styles';
 import whiteBox from '@/assets/images/white-box.png';
+import homeIcon from '@/assets/images/home.png';
+import { NavigationButton } from '@/components/nav-button';
 
 type ItemData = {
     displayName: string,
@@ -60,7 +62,7 @@ const activerequests = () => {
         `/users/${user?.uid}/${userCounterpart.toLowerCase()}s`);
       await setDoc(doc(currentLinkedCollection, data.requesterUID), {
         displayName: data.displayName,
-        uid: data.requesterUID
+        uid: data.requesterUID,
       });
 
       const receiverLinkedCollection = collection(db,
@@ -72,10 +74,8 @@ const activerequests = () => {
     }
 
     await setDoc(doc(requestsReceivedCollection, data.requesterUID), {
-      displayName: data.displayName,
-      requesterUID: data.requesterUID,
       isPending: false
-    });
+    }, {merge: true});
 
     fetchRequests();
     setIsModalVisible(false);
@@ -95,9 +95,25 @@ const activerequests = () => {
                 style={tabStyles.modalContainer}
                 source={whiteBox}
               >
-                <Text>Accept {item.displayName}'s request?</Text>
-                <Button title='Accept' onPress={() => updateLinkingRequest(item, true)}/>
-                <Button title='Reject' onPress={() => updateLinkingRequest(item, false)}/>
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Accept {item.displayName}'s request?</Text>
+                <Pressable onPress={() => updateLinkingRequest(item, true)}>
+                  <ImageBackground
+                    style={tabStyles.modalButtons}
+                    source={whiteBox}
+                    tintColor={"#EDEDED"}
+                  >
+                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>Accept</Text>
+                  </ImageBackground>
+                </Pressable>
+                <Pressable onPress={() => updateLinkingRequest(item, false)}>
+                  <ImageBackground
+                    style={tabStyles.modalButtons}
+                    source={whiteBox}
+                    tintColor={"#EDEDED"}
+                  >
+                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>Reject</Text>
+                  </ImageBackground>
+                </Pressable>
               </ImageBackground>
             </SafeAreaView>
           </Modal>
@@ -111,12 +127,25 @@ const activerequests = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <Text style={styles.headerStyle}>Requests</Text>
-      <FlatList
-        style={{ height: 150 }}
-        data={requests}
-        renderItem={renderItem}
-      />
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerStyle}>Recieved Requests</Text>
+      </View>
+
+      <SafeAreaView style={styles.contentContainer}>
+        <FlatList
+          style={{ height: 150 }}
+          data={requests}
+          renderItem={renderItem}
+        />
+      </SafeAreaView>
+
+      <View style={styles.navButtonContainer}>
+        <NavigationButton 
+          name={'Home'}
+          icon={homeIcon}
+          navTo={`/${userType}/home`}
+        />
+      </View>
     </LinearGradient>
   )
 }
@@ -134,7 +163,7 @@ const tabStyles = StyleSheet.create({
     overflow: "hidden"
   },
   modalContainer: {
-    height: 80,
+    height: 150,
     marginTop: 5,
     marginLeft: 20,
     marginRight: 20,
@@ -142,7 +171,16 @@ const tabStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden"
-  }
+  },
+  modalButtons: {
+    height: 35,
+    width: 200,
+    marginVertical: 5,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  },
 });
 
 export default activerequests

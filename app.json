@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.MySchedule"
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +37,9 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/Genty-Sans-Regular.ttf"]
+          "fonts": [
+            "./assets/fonts/Genty-Sans-Regular.ttf"
+          ]
         }
       ]
     ],

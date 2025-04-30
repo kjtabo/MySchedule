@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { Text, SafeAreaView, Button, TextInput } from 'react-native';
+import {
+  Text,
+  SafeAreaView,
+  TextInput,
+  Pressable,
+  ImageBackground,
+  StyleSheet
+} from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
 import { collection, setDoc, doc } from 'firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
+import { gradientColor, setUserType, styles } from '@/constants/styles';
+import whiteBox from '@/assets/images/white-box.png';
 
 const patientinfo = () => {
   const auth = FIREBASE_AUTH;
@@ -17,8 +27,19 @@ const patientinfo = () => {
   const [conditions, setConditions] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const signUp = async () => {
+    if (firstName == "" || lastName == "" || conditions == "") {
+      alert("Please indicate you name and medical conditions.")
+      return;
+    }
+    
+    if (password != confirmPassword) {
+      alert("Passwords do not match.")
+      return;
+    }
+
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
@@ -33,6 +54,7 @@ const patientinfo = () => {
           uid: user.user.uid,
         });
       }
+      setUserType("patient");
       if (user) router.replace("/patient/home");
     } catch (error: any) {
       console.log(error);
@@ -41,37 +63,100 @@ const patientinfo = () => {
   }
   
   return (
-    <SafeAreaView>
-      <Text>login</Text>
+    <LinearGradient
+      style={styles.backgroundContainer}
+      colors={gradientColor}
+    >
+      <SafeAreaView style={{ ...styles.contentContainer, justifyContent: "center" }}>
+        <Text style={tabStyles.welcomeText}>Patient Information</Text>
         <TextInput 
+          style={tabStyles.searchInput}
           placeholder='First Name'
           value={firstName}
           onChangeText={setFirstName}
         />
         <TextInput 
+          style={tabStyles.searchInput}
           placeholder='Last Name'
           value={lastName}
           onChangeText={setLastName}
         />
         <TextInput 
+          style={tabStyles.searchInput}
           placeholder='Conditions'
           value={conditions}
           onChangeText={setConditions}
         />
-        <TextInput 
+        <TextInput
+          style={tabStyles.searchInput}
           placeholder='Email'
           value={email}
           onChangeText={setEmail}
         />
         <TextInput 
+          style={tabStyles.searchInput}
           placeholder='Password'
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Button title="Make account" onPress={signUp}/>
-    </SafeAreaView>
+        <TextInput 
+          style={tabStyles.searchInput}
+          placeholder='Confirm Password'
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
+        <Pressable onPress={signUp}>
+          <ImageBackground
+            style={tabStyles.loginButtons}
+            source={whiteBox}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Make your account</Text>
+          </ImageBackground>
+        </Pressable>
+        <Pressable onPress={() => router.replace("/common/login")}>
+          <ImageBackground
+            style={tabStyles.loginButtons}
+            source={whiteBox}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back to Login</Text>
+          </ImageBackground>
+        </Pressable>
+      </SafeAreaView>
+    </LinearGradient>
   )
 }
+
+const tabStyles = StyleSheet.create({
+  welcomeText: {
+    fontSize: 40,
+    marginTop: 10,
+    alignSelf: "center",
+    fontWeight: "bold"
+  },
+  searchInput: {
+    width: "90%",
+    height: 50,
+    borderWidth: 2,
+    borderRadius: 30,
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    alignSelf: "center",
+    overflow: "hidden"
+  },
+  loginButtons: {
+    height: 50,
+    marginTop: 5,
+    marginHorizontal: 80,
+    marginBottom: 10,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    resizeMode: "cover",
+    overflow: "hidden"
+  }
+});
 
 export default patientinfo 

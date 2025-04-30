@@ -8,6 +8,7 @@ import {
   Pressable,
   ImageBackground,
   Button,
+  View,
 } from 'react-native'
 import {
   and,
@@ -20,7 +21,7 @@ import {
   where
 } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
-import { router } from 'expo-router'
+import { router, Tabs } from 'expo-router'
 import Modal from 'react-native-modal'
 
 import { getUserType, gradientColor, styles } from '@/constants/styles'
@@ -32,6 +33,7 @@ import whiteBox from '@/assets/images/white-box.png';
 type ItemData = {
   firstName: string,
   lastName: string,
+  displayName: string,
   email: string,
   type: string,
   uid: string,
@@ -74,22 +76,43 @@ const patientthererapistrequest = () => {
   }
 
   const sendLinkingRequest = async (data: any) => {
-    console.log("hi");
-    const senderRequestsCollection = collection(
-      db, `/users/${user?.uid}/requestsSent`)
-    await setDoc(doc(senderRequestsCollection, data.uid), {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      hasAccepted: false
-    });
-    
-    const receiverReceivedCollection = collection(
-      db, `/users/${data.uid}/requestsReceived`);
-    await setDoc(doc(receiverReceivedCollection, user?.uid), {
-      displayName: user?.displayName,
-      requesterUID: user?.uid,
-      isPending: true
-    });
+    if (userType == "therapist") {
+      const senderRequestsCollection = collection(
+        db, `/users/${user?.uid}/requestsSent`)
+      await setDoc(doc(senderRequestsCollection, data.uid), {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        displayName: data.displayName,
+        hasAccepted: false
+      });
+      
+      const receiverReceivedCollection = collection(
+        db, `/users/${data.uid}/requestsReceived`);
+      await setDoc(doc(receiverReceivedCollection, user?.uid), {
+        displayName: user?.displayName,
+        requesterUID: user?.uid,
+        isPending: true
+      });
+    }
+    else if (userType == "patient") {
+      const senderRequestsCollection = collection(
+        db, `/users/${user?.uid}/requestsSent`)
+      await setDoc(doc(senderRequestsCollection, data.uid), {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        displayName: data.displayName,
+        conditions: data.conditions,
+        hasAccepted: false
+      });
+      
+      const receiverReceivedCollection = collection(
+        db, `/users/${data.uid}/requestsReceived`);
+      await setDoc(doc(receiverReceivedCollection, user?.uid), {
+        displayName: user?.displayName,
+        requesterUID: user?.uid,
+        isPending: true
+      });
+    }
 
     setIsModalVisible(false);
   }
@@ -101,16 +124,32 @@ const patientthererapistrequest = () => {
           style={tabStyles.buttonContainer}
           source={whiteBox}
         >
-          <Text>{`${item.firstName} ${item.lastName}`}</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{`${item.firstName} ${item.lastName}`}</Text>
           <Modal isVisible={isModalVisible}>
             <SafeAreaView>
               <ImageBackground
                 style={tabStyles.modalContainer}
                 source={whiteBox}
               >
-                <Text>Link with {item.firstName}?</Text>
-                <Button title='Send Request' onPress={() => sendLinkingRequest(item)}/>
-                <Button title='Back' onPress={() => setIsModalVisible(false)}/>
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Link with {item.firstName} {item.lastName}?</Text>
+                <Pressable onPress={() => sendLinkingRequest(item)}>
+                  <ImageBackground
+                    style={tabStyles.modalButtons}
+                    source={whiteBox}
+                    tintColor={"#EDEDED"}
+                  >
+                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>Send Request</Text>
+                  </ImageBackground>
+                </Pressable>
+                <Pressable onPress={() => setIsModalVisible(false)}>
+                  <ImageBackground
+                    style={tabStyles.modalButtons}
+                    source={whiteBox}
+                    tintColor={"#EDEDED"}
+                  >
+                    <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back</Text>
+                  </ImageBackground>
+                </Pressable>
               </ImageBackground>
             </SafeAreaView>
           </Modal>
@@ -124,52 +163,94 @@ const patientthererapistrequest = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={styles.contentContainer}>
+      <View style={styles.headerContainer}>
         <Text style={styles.headerStyle}>Request</Text>
-        <Button title="Check received requests" onPress={() => router.push("/common/activerequests")}/>
+      </View>
+
+      <SafeAreaView style={styles.contentContainer}>
         <TextInput
+          style={tabStyles.searchInput}
           placeholder={`Search for a ${userCounterpart}`} 
           value={toQuery}
           onChangeText={(text) => {setToQuery(text); fetchQueriedUsers();}}
         />
+        <Text style={{ marginVertical: 10, marginHorizontal: 30 }}>Search Results</Text>
         <FlatList
           style={{ height: 150 }}
           data={queriedUsers}
           renderItem={renderItem}
-          keyExtractor={item => item.uid}
         />
+        <Pressable onPress={() => router.push("/common/activerequests")}>
+          <ImageBackground
+            style={tabStyles.seeRequestsButton}
+            source={whiteBox}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Check Received Requests</Text>
+          </ImageBackground>
+        </Pressable>
       </SafeAreaView>
-      <SafeAreaView style={styles.navButtonContainer}>
+
+      <View style={styles.navButtonContainer}>
         <NavigationButton
           name={"Home"}
           icon={homeIcon}
           navTo={`/${userType}/home`}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient> 
   )
 }
 
 const tabStyles = StyleSheet.create({
-  buttonText: {
+  searchInput: {
+    width: "90%",
+    height: 50,
+    borderWidth: 2,
+    borderRadius: 30,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    alignSelf: "center",
+    overflow: "hidden"
   },
   buttonContainer: {
-      height: 80,
-      marginTop: 5,
-      marginLeft: 20,
-      marginRight: 20,
-      borderRadius: 30,
-      justifyContent: "center",
-      overflow: "hidden"
+    height: 80,
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    justifyContent: "center",
+    overflow: "hidden"
   },
   modalContainer: {
-    height: 80,
+    height: 150,
     marginTop: 5,
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden"
+  },
+  modalButtons: {
+    height: 35,
+    width: 200,
+    marginVertical: 5,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  }, 
+  seeRequestsButton: {
+    height: 50,
+    marginTop: 5,
+    marginLeft: 50,
+    marginRight: 50,
+    marginBottom: 20,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    resizeMode: "cover",
     overflow: "hidden"
   }
 });

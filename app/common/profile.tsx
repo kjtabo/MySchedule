@@ -1,52 +1,108 @@
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import {
   Text,
   SafeAreaView,
   StyleSheet,
   ImageBackground,
   Pressable,
-  Image
+  FlatList,
+  View,
 } from 'react-native';
-import { router, Tabs } from 'expo-router';
+import { Href, router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { getAuth } from '@firebase/auth';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { styles, gradientColor, getUserType } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
 import whiteBox from '@/assets/images/white-box.png';
-import arrow from '@/assets/images/arrow.png';
 import homeIcon from '@/assets/images/home.png';
+
+var userData: any;
+var patientNumber: number;
+var therapistList: any[];
 
 const profile = () => {
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
 
+  const user = auth.currentUser;
   const userType = getUserType();
   const userCounterpart = userType == "therapist" ? "Patient" : "Therapist";
+
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   getAuth().onAuthStateChanged((user) => {
     if (!user) router.replace("/common/login");
   });
+    
+  useEffect(() => {
+    fetchUserInfo();
+    if (userType == "therapist")
+      fetchPatientInfo();
+    else if (userType == "patient")
+      fetchTherapistInfo();
+  }, [user]);
+
+  const fetchUserInfo = async () => {
+    const docRef = doc(db, "users", `${user?.uid}`);
+    const data = await getDoc(docRef);
+    userData = data.data();
+    forceUpdate();
+  }
+
+  const fetchPatientInfo = async () => {
+    const docRef = collection(db, "users", `${user?.uid}`, "patients");
+    const data = await getDocs(docRef);
+    patientNumber = data.docs.map((doc) => ({ ...doc.data() })).length;
+  }
+
+  const fetchTherapistInfo = async () => {
+    const docRef = collection(db, "users", `${user?.uid}`, "therapists");
+    const data = await getDocs(docRef);
+    therapistList = data.docs.map((doc) => ({ ...doc.data() }));
+  }
+
+  const renderItem = (data: any) => {
+    console.log(data);
+    return <Text style={{ marginLeft: 10, fontSize: 18}}>{`\u2022 ${data.item.displayName}`}</Text>
+  }
 
   return (
     <LinearGradient
       style={styles.backgroundContainer}
       colors={gradientColor}
-      >
-      <SafeAreaView style={styles.contentContainer}>
+    >
+      <View style={styles.headerContainer}>
         <Text style={styles.headerStyle}>Profile</Text>
+      </View>
+
+      <SafeAreaView style={styles.contentContainer}>
 
         <ImageBackground
           style={tabStyles.profileContainer}
           source={whiteBox}
         >
           {userType === "patient" && (
-            <Text style={tabStyles.profileText}>Patient</Text>
+            <SafeAreaView>
+              <Text style={tabStyles.containerHeader}>Patient</Text>
+              <Text style={tabStyles.profileText}>Name:  {userData?.firstName} {userData?.lastName}</Text>
+              <Text style={tabStyles.profileText}>Conditions:  {userData?.conditions}</Text>
+              <Text style={tabStyles.profileText}>Name of Therapist:  </Text>
+              <FlatList
+                data={therapistList}
+                renderItem={renderItem}
+              />
+            </SafeAreaView>
           )}
 
           {userType === "therapist" && (
-            <Text style={tabStyles.profileText}>Therapist</Text>
+            <SafeAreaView>
+              <Text style={tabStyles.containerHeader}>Occupational Therapist</Text>
+              <Text style={tabStyles.profileText}>Name:  {userData?.firstName} {userData?.lastName}</Text>
+              <Text style={tabStyles.profileText}>Number of Patients:  {patientNumber}</Text>
+            </SafeAreaView>
           )}
         </ImageBackground>
 
@@ -59,7 +115,7 @@ const profile = () => {
           </ImageBackground>
         </Pressable>
 
-        <Pressable onPress={() => {router.push("/common/chat")}}>
+        <Pressable onPress={() => {router.push("/common/chatlanding" as Href)}}>
           <ImageBackground
             style={tabStyles.buttonContainer}
             source={whiteBox}
@@ -95,21 +151,31 @@ const profile = () => {
           </ImageBackground>
         </Pressable>
       </SafeAreaView>
-      <SafeAreaView style={styles.navButtonContainer}>
+
+      <View style={styles.navButtonContainer}>
         <NavigationButton
           name={"Home"}
           icon={homeIcon}
           navTo={`/${userType}/home`}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   )
 }
 
 const tabStyles = StyleSheet.create({
+  containerHeader: {
+    fontSize: 25,
+    marginBottom: 15,
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "capitalize"
+  },
   profileText: {
     fontSize: 20,
-    fontWeight: "bold"
+    marginBottom: 5,
+    fontWeight: "bold",
+    textTransform: "capitalize"
   },
   buttonText: {
     marginLeft: 20,

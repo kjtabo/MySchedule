@@ -15,7 +15,7 @@ import {
   query,
   where
 } from 'firebase/firestore'
-import { Href, router, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Agenda, AgendaSchedule } from 'react-native-calendars'
 
@@ -95,7 +95,7 @@ const patientdetail = () => {
           style={calendarStyles.taskContainer}
         >
           <View>
-            <Text>{item.name}</Text>
+            <Text style={{ marginHorizontal: 20, fontSize: 20, fontWeight: "bold" }}>{item.name}</Text>
           </View>
         </ImageBackground>
       </Pressable>
@@ -107,8 +107,11 @@ const patientdetail = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={styles.contentContainer}>
+      <View style={styles.headerContainer}>
         <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
+      </View>
+
+      <SafeAreaView style={styles.contentContainer}>
         <View style={calendarStyles.calendarContainer}>
           <Agenda
             items={calendarItems}
@@ -128,7 +131,8 @@ const patientdetail = () => {
           />
         </View>
       </SafeAreaView>
-      <SafeAreaView style={styles.navButtonContainer}>
+
+      <View style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Home'}
           icon={homeIcon}
@@ -137,14 +141,14 @@ const patientdetail = () => {
         <NavigationButton 
           name={'Progress'}
           icon={progressIcon}
-          navTo={`/therapist/progress/${uid}`}
+          navTo={{ pathname: `/common/progress`, params: {uid: uid}}}
         />
         <NavigationButton 
           name={'New Activity'}
           icon={editIcon}
           navTo={`/therapist/newactivity/${uid}`}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   )
 }
