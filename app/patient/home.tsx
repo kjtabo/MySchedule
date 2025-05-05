@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  SafeAreaView,
   View
 } from 'react-native'
 import {
@@ -13,7 +14,6 @@ import {
   where
 } from 'firebase/firestore';
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
@@ -80,7 +80,10 @@ const home = () => {
   const renderTaskItem = ({item} : {item: ItemData}) => {
     return (
       <Link 
-        style={{ ...tabStyles.taskItem, textDecorationLine: item.doneDates.includes(getDateToday()) ? "line-through" : "none" }}
+        style={{
+          ...tabStyles.taskItem,
+          textDecorationLine: item.doneDates.includes(getDateToday()) ? "line-through" : "none"
+        }}
         href={{
           pathname: "/patient/taskdetail", params: {
             uid: user?.uid,

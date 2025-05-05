@@ -8,7 +8,7 @@ import {
   StyleSheet
 } from 'react-native';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from '@firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { collection, setDoc, doc } from 'firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
 

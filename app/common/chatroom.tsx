@@ -1,105 +1,210 @@
 import React, {
     useState,
     useEffect,
-    useLayoutEffect,
-    useCallback
+    useRef
 } from 'react';
-import { TouchableOpacity, Text } from 'react-native';
-import { GiftedChat } from 'react-native-gifted-chat';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ScrollView,
+  Keyboard
+} from 'react-native';
 import {
   collection,
   addDoc,
   orderBy,
   query,
-  onSnapshot
+  onSnapshot,
+  setDoc,
+  doc,
+  Timestamp,
+  DocumentData
 } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
-import { useNavigation } from '@react-navigation/native';
-import { AntDesign } from '@expo/vector-icons';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router, useLocalSearchParams } from 'expo-router';
+import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
 import { gradientColor, styles } from '@/constants/styles';
+import CustomKeyboardView from '@/components/custom-keyboard-view';
+import MessageItem from '@/components/message-item';
 
+const getRoomID = (uid1: string | undefined, uid2: string | undefined) => {
+  if (uid1 == undefined || uid2 == undefined) return '';
+  const sortedIDs = [uid1, uid2].sort();
+  return sortedIDs.join('-'); 
+}
 
-export default function chatroom() {
-const auth = FIREBASE_AUTH;
-const db = FIREBASE_DB;
+const chatroom = () => {
+  const params = useLocalSearchParams<{ displayName: string, uid: string }>();
+  const otherDisplayName = params.displayName;
+  const otherUID = params.uid;
 
-const [messages, setMessages] = useState([]);
-const navigation = useNavigation();
+  const auth = FIREBASE_AUTH;
+  const db = FIREBASE_DB;
 
-const onSignOut = () => {
-    signOut(auth).catch(error => console.log('Error logging out: ', error));
-  };
+  const user = auth.currentUser;
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{
-            marginRight: 10
-          }}
-          onPress={onSignOut}
-        >
-          <AntDesign name="logout" size={24} color={"#C5C5C7"} style={{marginRight: 10}}/>
-        </TouchableOpacity>
-      )
+  const [messages, setMessages] = useState<DocumentData[]>([]);
+  const textRef = useRef('');
+  const inputRef = useRef<TextInput>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    createNewChatRoom();
+
+    let roomID = getRoomID(user?.uid, otherUID);
+    const docRef = doc(db, "rooms", roomID);
+    const messagesRef = collection(docRef, "messages");
+    const q = query(messagesRef, orderBy('createdOn', 'asc'));
+
+    let unsub = onSnapshot(q, (snapshot) => {
+      let allMessages = snapshot.docs.map(doc => {return doc.data()});
+      setMessages([ ...allMessages ])
     });
-  }, [navigation]);
 
-  useLayoutEffect(() => {
-    const collectionRef = collection(db, 'chats');
-    const q = query(collectionRef, orderBy('createdAt', 'desc'));
+    const KeyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow', updateScrollView
+    )
 
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      console.log('querySnapshot unsusbscribe');
-        setMessages(
-          querySnapshot.docs.map(doc => ({
-            _id: doc.data()._id,
-            createdAt: doc.data().createdAt.toDate(),
-            text: doc.data().text,
-            user: doc.data().user
-          }))
-        );
+    return () => {
+      unsub();
+      KeyboardDidShowListener.remove();
+    }
+  }, []);
+
+  useEffect(() => {
+    updateScrollView();
+  }, [messages])
+
+  const updateScrollView = () => {
+    setTimeout(() => {
+      scrollViewRef?.current?.scrollToEnd({animated: false})
+    }, 100);
+  }
+  
+  const createNewChatRoom = async () => {
+    const roomID = getRoomID(user?.uid, otherUID);
+    if (roomID.length == 0) return;
+    
+    await setDoc(doc(db, "rooms", roomID), {
+      roomID,
+      createdOn: Timestamp.fromDate(new Date())
+    })
+  }
+ 
+  const sendMessage = async () => {
+    let message = textRef.current.trim(); 
+    if (!message) return;
+
+    try {
+      const roomID = getRoomID(user?.uid, otherUID);
+      const docRef = doc(db, "rooms", roomID);
+      const messagesRef = collection(docRef, "messages");
+      textRef.current = "";
+      if (inputRef) inputRef?.current?.clear();
+      await addDoc(messagesRef, {
+        senderUID: user?.uid,
+        senderName: user?.displayName,
+        message: message,
+        createdOn: Timestamp.fromDate(new Date())
       });
-    return unsubscribe;
-  }, []);
-
-  const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, messages)
-    );
-    const { _id, createdAt, text, user } = messages[0];    
-    addDoc(collection(db, 'chats'), {
-      _id,
-      createdAt,
-      text,
-      user
-    });
-  }, []);
+    } catch (error: any) {
+      Alert.alert("Message", error.message)
+    }
+  }
 
   return (
     <LinearGradient
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <GiftedChat
-        messages={messages}
-        showAvatarForEveryMessage={false}
-        showUserAvatar={false}
-        onSend={messages => onSend(messages)}
-        messagesContainerStyle={{
-          backgroundColor: '#fff'
-        }}
-        textInputStyle={{
-          backgroundColor: '#fff',
-          borderRadius: 20,
-        }}
-        user={{
-          _id: auth?.currentUser?.email,
-          avatar: 'https://i.pravatar.cc/300'
-        }}
-      />
+      <CustomKeyboardView>
+        <View style={tabStyles.chatHeaderContainer}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Entypo name="chevron-left" size={30} color="black" style={{ paddingHorizontal: 10 }} />
+          </TouchableOpacity>
+          <Text style={tabStyles.chatHeaderText}>{otherDisplayName}</Text>
+        </View>
+
+        <SafeAreaView style={tabStyles.chatBoxContainer}>
+          <View style={{ flex: 1, justifyContent: "space-between", overflow: "visible"}}>
+            {/* Message List */}
+            <View style={{ flex: 1 }}>
+              <ScrollView
+                ref={scrollViewRef}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingTop: 10 }}
+              >
+                {
+                  messages.map((message: any, index: any) => {
+                    return ( 
+                      <MessageItem message={message} currentUserID={user?.uid} key={index}/>
+                    )
+                  })
+                }
+              </ScrollView>
+            </View>
+
+            {/* Text Input */}
+            <View style={{ marginBottom: 10, paddingTop: 2 }}>
+              <View style={tabStyles.textInputStyle}>
+                <TextInput
+                  ref={inputRef}
+                  onChangeText={value => textRef.current = value}
+                  style={{ flex: 1, fontSize: 20, marginRight: 5 }}
+                  placeholder='Message'
+                />
+                <TouchableOpacity 
+                  className="bg-neutral-200 p-2 rounded-full"
+                  style={{ justifyContent: "center", marginRight: 5, marginVertical: 5 }}
+                  onPress={sendMessage}  
+                >
+                  <Feather name="send" size={25} color="737373"/>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+          </View>
+        </SafeAreaView>
+      </CustomKeyboardView>
     </LinearGradient>
   );
-}1
+}
+
+const tabStyles = StyleSheet.create({
+  chatHeaderText: {
+    fontSize: 30,
+    fontWeight: "bold"
+  },
+  chatBoxContainer: {
+    flex: 0.88,
+    justifyContent: "space-between",
+    overflow: "visible",
+  },
+  textInputStyle: {
+    borderRadius: 30,
+    borderWidth: 2,
+    alignSelf: "center",
+    justifyContent:"space-between",
+    flexDirection: "row",
+    backgroundColor: "white",
+    borderColor: "#EDEDED",
+  },
+  chatHeaderContainer: {
+    flex: 0.15,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    overflow: "hidden"
+  },
+})
+
+export default chatroom;

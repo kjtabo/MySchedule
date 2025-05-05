@@ -10,7 +10,7 @@ const Stopwatch = ({getTimeValue}: {getTimeValue: (time: number) => void}) => {
   const startTimeRef = useRef(0);
 
   useEffect(() => {
-    if(isRunning) {
+    if (isRunning) {
       intervalIdRef.current = setInterval(() => {
         setElapsedTime(Date.now() - startTimeRef.current);
       }, 10);

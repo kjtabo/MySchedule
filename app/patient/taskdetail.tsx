@@ -3,13 +3,13 @@ import {
   ImageBackground,
   StyleSheet,
   Pressable,
+  SafeAreaView,
   View
 } from 'react-native'
 import React, { useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradientColor, styles } from '@/constants/styles';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationButton } from '@/components/nav-button';
 
 import homeIcon from '@/assets/images/home.png';

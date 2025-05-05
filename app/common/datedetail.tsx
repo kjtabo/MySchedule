@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import {
   Text,
   SafeAreaView,
@@ -7,10 +7,13 @@ import {
   StyleSheet,
   View,
   FlatList,
-  Pressable
-} from 'react-native'
+  Pressable,
+  TouchableOpacity,
+} from 'react-native';
+import Modal from 'react-native-modal';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams } from 'expo-router'
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
@@ -20,16 +23,15 @@ import homeIcon from '@/assets/images/home.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import whiteBox from '@/assets/images/white-box.png';
 
-var taskInfo: any;
-
 const getDateToday = () => {
   return new Date().toISOString().split("T")[0];
 }
 
 const datedetail = () => {
-  const params = useLocalSearchParams<{uid: string, taskName: string}>();
+  const params = useLocalSearchParams<{uid: string, selectedDate: string, dailyTasks: string}>();
   const uid = params.uid;
-  const taskName = params.taskName;
+  const dateSelected = params.selectedDate;
+  const dailyTasks = JSON.parse(params.dailyTasks);
 
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
@@ -38,22 +40,44 @@ const datedetail = () => {
   const userType = getUserType();
   const remindersCollection = collection(db, `users/${uid}/reminders`);
 
-  const [remarks, setRemarks] = useState("");
-  const [taskData, setTaskData] = useState<any>({});
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const [newRemark, setNewRemark] = useState("");
+  const [remarks, setRemarks] = useState<any>([])
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchTaskInfo();
-  }, [user]);
+    fetchReminders();
+  }, [isModalVisible])
 
-  const fetchTaskInfo = async () => {
-    const data = await getDocs(remindersCollection);
-    taskInfo = data.docs.map((doc) => ({ ...doc.data() }));
+  const fetchReminders = async () => {
+    const q = query(remindersCollection, where('createdAt', '==', dateSelected));
+    const data = await getDocs(q);
+    setRemarks(data.docs.map((doc) => ({ ...doc.data() })));
   }
 
-  const setTaskInfo = async () => {
-    await setDoc(doc(remindersCollection, getDateToday()), {
-      
+  const submitReminder = async () => {
+    await addDoc(remindersCollection, {
+      createdAt: dateSelected,
+      remark: newRemark,
+      from: user?.uid
     })
+    setModalVisible(false);
+  }
+
+  const renderTaskItem = (item: any) => {
+    return (
+      <Text style={{ fontSize: 18 }}>
+        {`\u2022 ${item.item.name}`}
+      </Text> 
+    )
+  }
+
+  const renderRemarkItem = (item: any) => {
+    return (
+      <Text style={{ fontSize: 18 }}>
+        {`\u2022 ${item.item.remark}`}
+      </Text> 
+    )
   }
 
   return (
@@ -71,38 +95,86 @@ const datedetail = () => {
           source={whiteBox}
         >
           <Text style={tabStyles.containerHeader}>
-            {new Date().toDateString().split(" ")[1]} {new Date().getDate()} Tasks
+            {new Date(dateSelected).toDateString().split(" ")[1]} {new Date(dateSelected).getDate()} Tasks
           </Text>
+          <View style={{ marginTop: 10, marginHorizontal: 20 }}>
+            {dailyTasks.length != 0 && (
+              <FlatList
+                data={dailyTasks}
+                renderItem={renderTaskItem}
+              />
+            )}
+            {dailyTasks.length == 0 && (
+              <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+            )}
+          </View>
         </ImageBackground>
         <ImageBackground
           style={tabStyles.remarksContainer}
           source={whiteBox}
         >
           <Text style={tabStyles.containerHeader}>Remarks</Text>
-          {userType == "therapist" && (
-            <View style={{ flex: 1 }}>
-              <View style={{ flex: 0.85 }}>
-                {/* <FlatList/> */}
-                <Text>HI</Text>
-              </View>
-              <View style={{ flex: 0.15, alignItems: "center", justifyContent: "center" }}>
-                <Pressable>
-                  <Text style={tabStyles.addRemarkButton}>+</Text>
-                </Pressable>
-              </View>
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 0.75, marginTop: 10, marginHorizontal: 20 }}>
+              {remarks.length != 0 && (
+                <FlatList
+                  data={remarks}
+                  renderItem={renderRemarkItem}
+                />
+              )}
+              {remarks.length == 0 && (
+                <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+              )}
             </View>
-            // <TextInput
-            //   style={{ marginLeft: 10 }}
-            //   placeholder='Remarks'
-            //   value={remarks}
-            //   onChangeText={setRemarks}
-            // />
-          )}
-          {userType == "patient" && (
-            <Text>insert remarks here</Text>
-          )}
+            <Modal isVisible={isModalVisible}>
+              <View style={tabStyles.modalContainer}>
+                <View style={{ flex: 0.8 }}>
+                  <Text style={{ fontSize: 30, fontWeight: "bold", alignSelf: "center", marginTop: 10 }}>Write a Remark</Text>
+                  <TextInput
+                    style={tabStyles.multilineText}
+                    placeholder='Write your newRemark'
+                    onChangeText={setNewRemark}
+                    value={newRemark}
+                    multiline
+                  />
+                </View>
+                <View style={{ flex: 0.2, alignItems: "center" }}>
+                  <Pressable onPress={submitReminder}>
+                    <ImageBackground
+                      style={tabStyles.modalButtons}
+                      source={whiteBox}
+                      tintColor={"#EDEDED"}
+                    >
+                      <Text style={{ fontSize: 20, fontWeight: "bold" }}>Submit</Text>
+                    </ImageBackground>
+                  </Pressable>
+                  <Pressable onPress={() => setModalVisible(false)}>
+                    <ImageBackground
+                      style={tabStyles.modalButtons}
+                      source={whiteBox}
+                      tintColor={"#EDEDED"}
+                    >
+                      <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back</Text>
+                    </ImageBackground>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
+            <View style={{ flex: 0.25, alignItems: "center", justifyContent: "center" }}>
+              {userType == "therapist" && (
+                <TouchableOpacity
+                  className="bg-neutral-200 p-2 rounded-full"
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                  onPress={() => {setModalVisible(true)}}
+                >
+                  <Ionicons name="add" size={30} color="black" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>  
         </ImageBackground>
       </SafeAreaView>
+
 
       <View style={styles.navButtonContainer}>
         <NavigationButton 
@@ -151,7 +223,36 @@ const tabStyles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 30,
     overflow: "hidden"
-  }
+  },
+  modalContainer: {
+    height: "60%",
+    width: "85%",
+    padding: 10,
+    borderRadius: 30,
+    backgroundColor: "white",
+    alignSelf: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  },
+  modalButtons: {
+    height: 35,
+    width: 200,
+    marginVertical: 5,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  },
+  multilineText: {
+    marginTop: 10,
+    padding: 10,
+    textAlignVertical: "top",
+    borderRadius: 20,
+    borderColor: "#EDEDED",
+    width: "80%",
+    minHeight: "60%",
+    overflow: "hidden" 
+  },
 });
 
 export default datedetail 

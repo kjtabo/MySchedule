@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.MySchedule"
+      "package": "com.anonymous.MySchedule",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -41,10 +42,20 @@
             "./assets/fonts/Genty-Sans-Regular.ttf"
           ]
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b2a4b756-f095-4614-a0fa-dc7396f6a706"
+      }
+    },
+    "owner": "kjtabo"
   }
 }

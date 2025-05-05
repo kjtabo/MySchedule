@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import {
   Text,
   SafeAreaView,
   View,
   Pressable,
   ImageBackground,
-  StyleSheet
+  StyleSheet,
+  FlatList
 } from 'react-native'
 import {
   collection,
@@ -15,6 +16,7 @@ import {
   query,
   where
 } from 'firebase/firestore'
+import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Agenda, AgendaSchedule } from 'react-native-calendars'
@@ -26,7 +28,9 @@ import homeIcon from '@/assets/images/home.png';
 import progressIcon from '@/assets/images/graph.png';
 import editIcon from '@/assets/images/edit.png';
 import whiteBox from '@/assets/images/white-box.png';
+import CalendarPicker from 'react-native-calendar-picker'
 
+var tasks: any = [];
 const getDateToday = () => {
   const date = new Date();
   return date.toISOString().split("T")[0];
@@ -40,14 +44,17 @@ const patientdetail = () => {
 
   const user = auth.currentUser;
 
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [patientData, setPatientData] = useState<any>([]);
-  const [tasks, setTasks] = useState<any>([]);
   const [calendarItems, setCalendarItems] = useState<any>({});
+  const [activitiesToday, setActivitiesToday] = useState<any>({});
+  const [hasActivities, setHasActivities] = useState(false);
+  const [dateSelected, setDateSelected] = useState(new Date());
 
   useEffect(() => {
     fetchPatientData();
     fetchTaskData();
-  }, [user]);
+  }, []);
 
   const fetchPatientData = async () => {
     const docRef = doc(db, "users", `${uid}`);
@@ -59,44 +66,50 @@ const patientdetail = () => {
     const docRef = collection(db, "users", `${uid}`, "tasks");
     const q = query(docRef, where("dates", "!=", null));
     const data = await getDocs(q);
-    setTasks(data.docs.map((doc) => ({ ...doc.data() })));
+    tasks = data.docs.map((doc) => ({ ...doc.data() }));
     getTaskList();
+    forceUpdate();
   }
 
   const getTaskList = () => {
-    let dates: AgendaSchedule = {};
+    let dates: any = {};
 
-    setTimeout(() => {
-      for (let data of tasks) {
-        for (let date of data["dates"]) {
-          if (!dates[date])
-            dates[date] = [{"name": data["name"], "height": 0, "day": ""}];
-          else
-            dates[date].push({"name": data["name"], "height": 0, "day": ""});
-        }
+    for (let data of tasks) {
+      for (let date of data["dates"]) {
+        if (!(date in dates))
+          dates[date] = [{"name": data["name"]}];
+        else
+          dates[date].push({"name": data["name"]});
       }
-      setCalendarItems(dates);
-    }, 10);
+    }
+    setCalendarItems(dates);
+    updateActivitesToday(dateSelected);
   }
 
-  const renderEmptyDate = () => {
-    return (
-      <View style={{ height: 15, flex: 1, paddingTop: 30 }}>
-        <Text>This is empty date!</Text>
-      </View>
-    );
-  };
+  const updateActivitesToday = (date: Date) => {
+    setDateSelected(date);
+    const dateSelected = date.toISOString().split("T")[0];
+    if (dateSelected in calendarItems) {
+      setHasActivities(true);
+      setActivitiesToday(calendarItems[dateSelected]);
+    }
+    else setHasActivities(false);
+  }
 
   const renderItem = (item: any) => {
+    const selected = dateSelected.toISOString().split("T")[0]
     return (
-      <Pressable onPress={() => {router.push({ pathname: "/common/datedetail", params: {uid: uid, taskName: item.name}})}}>
+      <Pressable onPress={() => {router.push({
+          pathname: "/common/datedetail",
+          params: {uid: uid, selectedDate: selected, dailyTasks: JSON.stringify(activitiesToday)}
+        })}}
+      >
         <ImageBackground 
           source={whiteBox}
           style={calendarStyles.taskContainer}
+          tintColor={'skyblue'}
         >
-          <View>
-            <Text style={{ marginHorizontal: 20, fontSize: 20, fontWeight: "bold" }}>{item.name}</Text>
-          </View>
+          <Text style={{ marginHorizontal: 20, fontSize: 20, fontWeight: "bold" }}>{item.item.name}</Text>
         </ImageBackground>
       </Pressable>
     );
@@ -108,27 +121,54 @@ const patientdetail = () => {
       colors={gradientColor}
     >
       <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
+        <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+          {patientData.firstName} {patientData.lastName}
+        </Text>
       </View>
 
       <SafeAreaView style={styles.contentContainer}>
         <View style={calendarStyles.calendarContainer}>
-          <Agenda
-            items={calendarItems}
-            loadItemsForMonth={getTaskList}
-            selected={getDateToday()}
-            renderItem={renderItem}
-            renderEmptyDate={renderEmptyDate}
-            showClosingKnob={true}
-            pastScrollRange={3}
-            futureScrollRange={6}
-            showOnlySelectedDayItems={true}
-            renderEmptyData={() => {
-              return <View style={{ alignItems: "center", marginTop: 10 }}><Text>
-                Nothing to see here!
-              </Text></View>
-            }}
-          />
+          <View style={{ flex: 0.5, borderBottomColor: "#EDEDED", borderBottomWidth: 2 }}>
+            <CalendarPicker 
+              onDateChange={updateActivitesToday}
+              scaleFactor={400}
+              textStyle={{ fontSize: 20, fontWeight: "bold" }}
+              selectedDayColor='dodgerblue'
+              selectedDayTextColor='white'
+              initialDate={new Date()}
+              showDayStragglers={true}
+              previousComponent={
+                <Entypo
+                  name="chevron-left"
+                  size={24}
+                  color="black"
+                  style={{ marginLeft: 20 }}
+                />
+              }
+              nextComponent={
+                <Entypo
+                  name="chevron-right"
+                  size={24}
+                  color="black"
+                  style={{ marginRight: 20 }} 
+                />
+              }
+            />
+          </View>
+          <View style={{ flex: 0.5 }}>
+            <Text style={{ fontSize: 25, fontWeight: "bold", marginLeft: 10, marginVertical: 10 }}>
+              {dateSelected.toDateString()}
+            </Text>
+            {hasActivities && (
+              <FlatList
+                data={activitiesToday}
+                renderItem={renderItem}
+              />
+            )}
+            {!hasActivities && (
+              <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+            )}
+          </View>
         </View>
       </SafeAreaView>
 
@@ -156,21 +196,23 @@ const patientdetail = () => {
 const calendarStyles = StyleSheet.create({
   calendarContainer: {
     flex: 1,
+    paddingTop: 10,
+    paddingBottom: 10,
     marginTop: 10,
     marginBottom: 10,
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 30,
+    backgroundColor: "white",
     overflow: "hidden"
   },
   taskContainer: {
-    height: 80,
+    height: 50,
     borderRadius: 10,
+    marginHorizontal: 10,
     marginTop: 5,
-    marginRight: 5,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    resizeMode: "cover",
+    justifyContent: "center",
     overflow: "hidden"
   }
 });

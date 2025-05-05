@@ -4,11 +4,11 @@ import {
   FlatList,
   ImageBackground,
   Pressable,
+  SafeAreaView,
   Text,
   View
 } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, getDocs } from 'firebase/firestore';
 import { Href, router } from 'expo-router';
 
@@ -27,30 +27,30 @@ type ItemData = {
 const home = () => {
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
-
+  
   const user = auth.currentUser; 
   const patientsCollection = collection(db, `/users/${user?.uid}/patients`);
-
+  
   const [patients, setPatients] = useState<any>([]);
-
+  
   useEffect(() => {
     fetchPatients();
   }, [user]);
-
+  
   const fetchPatients = async () => {
     if (user) {
       const data = await getDocs(patientsCollection);
       setPatients(data.docs.map((doc) => ({ ...doc.data() })));
     }
   }
-
+  
   const renderItem = ({item}: {item: ItemData}) => {
     return (
       <Pressable onPress={() => {router.push(`/therapist/details/${item.uid}` as Href)}}>
         <ImageBackground
           style={tabStyles.buttonContainer}
           source={whiteBox}
-        >
+          >
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.displayName}</Text>
         </ImageBackground>
       </Pressable>
@@ -90,7 +90,7 @@ const home = () => {
 }
 
 const tabStyles = StyleSheet.create({
- buttonContainer: {
+  buttonContainer: {
     height: 80,
     marginBottom: 10,
     marginHorizontal: 20,

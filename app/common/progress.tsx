@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react' 
-import { Text, ImageBackground, StyleSheet, Image, View } from 'react-native'
+import { Text, ImageBackground, StyleSheet, Image, View, SafeAreaView, FlatList } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Tabs, useLocalSearchParams } from 'expo-router';
 
 import { styles, gradientColor, getUserType } from '@/constants/styles';
@@ -9,7 +8,7 @@ import { NavigationButton } from '@/components/nav-button';
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import react8 from '@/assets/images/reaction8.png';
 import react7 from '@/assets/images/reaction7.png';
 import react6 from '@/assets/images/reaction6.png';
@@ -39,9 +38,12 @@ const progress = () => {
 
   const user = auth.currentUser;
   const userType = getUserType();
+
+  const [remarks, setRemarks] = useState<any>([])
   
   useEffect(() => {
     fetchTaskInfo();
+    fetchReminders();
   }, [user])
 
   const fetchTaskInfo = async () => {
@@ -69,6 +71,21 @@ const progress = () => {
     forceUpdate();
   }
 
+  const fetchReminders = async () => {
+    const remindersCollection = collection(db, `users/${uid}/reminders`);
+    const q = query(remindersCollection, where('createdAt', '==', getDateToday()));
+    const data = await getDocs(q);
+    setRemarks(data.docs.map((doc) => ({ ...doc.data() })));
+  }
+
+  const renderRemarkItem = (item: any) => {
+    return (
+      <Text style={{ fontSize: 18 }}>
+        {`\u2022 ${item.item.remark}`}
+      </Text> 
+    )
+  }
+
   return (
     <LinearGradient
       style={styles.backgroundContainer}
@@ -84,6 +101,17 @@ const progress = () => {
           source={whiteBox}
         >
           <Text style={tabStyles.containerHeader}>Therapy Session Remarks</Text>
+          <View style={{ flex: 0.9, marginTop: 10, marginHorizontal: 20 }}>
+            {remarks.length != 0 && (
+              <FlatList
+                data={remarks}
+                renderItem={renderRemarkItem}
+              />
+            )}
+            {remarks.length == 0 && (
+              <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+            )}
+          </View>
         </ImageBackground>
         <ImageBackground
           style={tabStyles.statisticsContainer}

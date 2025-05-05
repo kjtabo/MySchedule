@@ -5,24 +5,31 @@ import { setUserType, styles } from "@/constants/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View } from "react-native";
 import { setStatusBarHidden } from "expo-status-bar";
+import React from "react";
+// import { useNotification } from "@/components/notifications-manager";
 
 export default function Index() {
+  setStatusBarHidden(true);
+
   const user = FIREBASE_AUTH.currentUser;
   const db = FIREBASE_DB;
+  // const { notification, expoPushToken, error } = useNotification();
 
-  setStatusBarHidden(true);
+  // if (error) return;
+  // console.log(expoPushToken);
+  // console.log(JSON.stringify(notification, null, 2));
 
   const attemptSignIn = async () => {
     if (user) {
       const docRef = doc(db, "users", user.uid);
       const userData = await getDoc(docRef);
       setUserType(userData.data()?.type);
-      return <Redirect href={`/${userData.data()?.type}/home` as Href} />
+      return <Redirect href={`/${userData.data()?.type}/home` as Href}/>
     }
   }
 
   if (user) attemptSignIn();
-  else return <Redirect href="/common/login" />
+  else return <Redirect href="/common/login"/>
 
   // return (
   //   <View style={{ flex: 1 }}>

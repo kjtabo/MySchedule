@@ -193,7 +193,6 @@ const newactivity = () => {
       deadline: deadline,
       doneDates: [],
     });
-    console.log("new activity uploaded");
     router.replace(`/therapist/details/${uid}` as Href);
   }
 
@@ -206,7 +205,7 @@ const newactivity = () => {
         <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
       </View>
       
-      <SafeAreaView style={styles.contentContainer}>
+      <View style={styles.contentContainer}>
         {/* Task Name */}
         <ImageBackground
           style={tabStyles.nameContainer}
@@ -447,7 +446,7 @@ const newactivity = () => {
             <Button title="submit" onPress={confirmEndIOS}/>
           </View>
         )} 
-      </SafeAreaView>
+      </View>
 
       <View style={styles.navButtonContainer}>
         <NavigationButton

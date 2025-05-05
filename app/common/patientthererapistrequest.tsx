@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   Pressable,
   ImageBackground,
-  Button,
   View,
 } from 'react-native'
 import {
@@ -21,7 +20,7 @@ import {
   where
 } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
-import { router, Tabs } from 'expo-router'
+import { router } from 'expo-router'
 import Modal from 'react-native-modal'
 
 import { getUserType, gradientColor, styles } from '@/constants/styles'
@@ -82,7 +81,6 @@ const patientthererapistrequest = () => {
       await setDoc(doc(senderRequestsCollection, data.uid), {
         firstName: data.firstName,
         lastName: data.lastName,
-        displayName: data.displayName,
         hasAccepted: false
       });
       
@@ -92,7 +90,7 @@ const patientthererapistrequest = () => {
         displayName: user?.displayName,
         requesterUID: user?.uid,
         isPending: true
-      });
+      });;
     }
     else if (userType == "patient") {
       const senderRequestsCollection = collection(
@@ -124,14 +122,18 @@ const patientthererapistrequest = () => {
           style={tabStyles.buttonContainer}
           source={whiteBox}
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{`${item.firstName} ${item.lastName}`}</Text>
+          <Text style={tabStyles.buttonText}>
+            {`${item.firstName} ${item.lastName}`}
+          </Text>
           <Modal isVisible={isModalVisible}>
             <SafeAreaView>
               <ImageBackground
                 style={tabStyles.modalContainer}
                 source={whiteBox}
               >
-                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Link with {item.firstName} {item.lastName}?</Text>
+                <Text style={tabStyles.buttonText}>
+                  Link with {item.firstName} {item.lastName}?
+                </Text>
                 <Pressable onPress={() => sendLinkingRequest(item)}>
                   <ImageBackground
                     style={tabStyles.modalButtons}
@@ -211,6 +213,11 @@ const tabStyles = StyleSheet.create({
     backgroundColor: "white",
     alignSelf: "center",
     overflow: "hidden"
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textTransform: "capitalize" 
   },
   buttonContainer: {
     height: 80,

@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     // backgroundColor: "blue"
   },
   homeContainer: {
-    flex: 0.7
+    flex: 0.7,
   },
   contentContainer: {
     flex: 0.7,

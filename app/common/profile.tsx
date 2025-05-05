@@ -11,7 +11,7 @@ import {
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
-import { getAuth } from '@firebase/auth';
+import { getAuth } from 'firebase/auth';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { styles, gradientColor, getUserType } from '@/constants/styles';
@@ -29,6 +29,7 @@ const profile = () => {
 
   const user = auth.currentUser;
   const userType = getUserType();
+  
   const userCounterpart = userType == "therapist" ? "Patient" : "Therapist";
 
   const [, forceUpdate] = useReducer(x => x + 1, 0);
@@ -65,7 +66,6 @@ const profile = () => {
   }
 
   const renderItem = (data: any) => {
-    console.log(data);
     return <Text style={{ marginLeft: 10, fontSize: 18}}>{`\u2022 ${data.item.displayName}`}</Text>
   }
 

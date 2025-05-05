@@ -1,69 +1,99 @@
-import React, { useEffect } from "react";
-import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { FontAwesome } from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
-import { Href, router } from "expo-router";
-const catImageUrl = "https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=49ed3252c0b2ffb49cf8b508892e452d";
+import { View, Text, StyleSheet, SafeAreaView, FlatList, Pressable, ImageBackground } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { LinearGradient } from 'expo-linear-gradient'
+import { getUserType, gradientColor, styles } from '@/constants/styles'
+import { NavigationButton } from '@/components/nav-button'
+import homeIcon from '@/assets/images/home.png';
+import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
+import { collection, getDocs } from 'firebase/firestore'
+import { Href, router } from 'expo-router'
+import whiteBox from '@/assets/images/white-box.png';
+
+type ItemData = {
+  displayName: string;
+  uid: string;
+};
+
+const getRoomID = (uid1: string | undefined, uid2: string | undefined) => {
+  if (uid1 == undefined || uid2 == undefined) return '';
+  const sortedIDs = [uid1, uid2].sort();
+  return sortedIDs.join('-'); 
+}
 
 const chatlanding = () => {
+  const db = FIREBASE_DB;
+  const auth = FIREBASE_AUTH;
 
-    const navigation = useNavigation();
+  const user = auth.currentUser;
 
-    useEffect(() => {
-        navigation.setOptions({
-            headerLeft: () => (
-                <FontAwesome name="search" size={24} color={"#C5C5C7"} style={{marginLeft: 15}}/>
-            ),
-            headerRight: () => (
-                <Image
-                    source={{ uri: catImageUrl }}
-                    style={{
-                        width: 40,
-                        height: 40,
-                        marginRight: 15,
-                    }}
-                />
-            ),
-        });
-    }, [navigation]);
+  const userType = getUserType();
+  const userCounterpart = userType == "therapist" ? "Patient" : "Therapist";
 
+  const [linkedUsersList, setLinkedUsersList] = useState<any>([]);
+
+  useEffect(() => {
+    fetchLinkedUsersList();
+  }, [user]);
+
+  const fetchLinkedUsersList = async () => {
+    const linkedUsersListCollection = collection(db, "users", `${user?.uid}`, `${userCounterpart.toLowerCase()}s`);
+    const data = await getDocs(linkedUsersListCollection);
+    setLinkedUsersList(data.docs.map((doc) => ({ ...doc.data() })));
+  }
+
+  const renderItem = ({item}: {item: ItemData}) => {
     return (
-        <View style={styles.container}>
-            <TouchableOpacity
-                onPress={() => router.push("/common/chatroom" as Href)}
-                style={styles.chatButton}
-            >
-                <Entypo name="chat" size={24} color={"#FAFAFA"} />
-            </TouchableOpacity>
-        </View>
-    );
-    };
+      <Pressable onPress={() => {
+          router.push({pathname: "/common/chatroom", params: { displayName: item.displayName, uid: item.uid }})
+        }}
+      >
+        <ImageBackground
+          style={tabStyles.buttonContainer}
+          source={whiteBox}
+        >
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.displayName}</Text>
+        </ImageBackground>
+      </Pressable>
+    )
+  }
 
-    export default chatlanding;
+  return (
+    <LinearGradient
+      style={styles.backgroundContainer}
+      colors={gradientColor}
+    >
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerStyle}>Chat with your {userCounterpart}s</Text>
+      </View>
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            justifyContent: 'flex-end',
-            alignItems: 'flex-end',
-            backgroundColor: "#fff",
-        },
-        chatButton: {
-            backgroundColor: "#f57c00",
-            height: 50,
-            width: 50,
-            borderRadius: 25,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: "#f57c00",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: .9,
-            shadowRadius: 8,
-            marginRight: 20,
-            marginBottom: 50,
-        }
-    });
+      <SafeAreaView style={styles.contentContainer}>
+        <FlatList
+          data={linkedUsersList}
+          renderItem={renderItem}
+        />
+      </SafeAreaView>
+      
+      <View style={styles.navButtonContainer}>
+        <NavigationButton 
+          name={'Home'}
+          icon={homeIcon}
+          navTo={`/${userType}/home`}
+        />
+      </View>
+    </LinearGradient> 
+  );
+}
+
+const tabStyles = StyleSheet.create({
+  buttonContainer: {
+    height: 80,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    justifyContent: "center",
+    overflow: "hidden"
+  }
+});
+
+export default chatlanding

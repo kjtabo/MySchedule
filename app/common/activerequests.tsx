@@ -88,7 +88,7 @@ const activerequests = () => {
           style={tabStyles.buttonContainer}
           source={whiteBox}
         >
-          <Text>{item.displayName}</Text>
+          <Text style={tabStyles.buttonText}>{item.displayName}</Text>
           <Modal isVisible={isModalVisible}>
             <SafeAreaView>
               <ImageBackground
@@ -152,12 +152,16 @@ const activerequests = () => {
 
 const tabStyles = StyleSheet.create({
   buttonText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textTransform: "capitalize"
   },
   buttonContainer: {
     height: 80,
     marginTop: 5,
     marginLeft: 20,
     marginRight: 20,
+    paddingHorizontal: 20,
     borderRadius: 30,
     justifyContent: "center",
     overflow: "hidden"
