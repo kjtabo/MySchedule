@@ -53,7 +53,7 @@ const itemStyles = StyleSheet.create({
     padding: 10,
     borderRadius: 30,
     alignSelf: "flex-start",
-    backgroundColor: "indigo",
+    backgroundColor: "lightblue",
     borderColor: "#EDEDED"
   }
 })

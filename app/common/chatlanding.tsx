@@ -1,12 +1,22 @@
-import { View, Text, StyleSheet, SafeAreaView, FlatList, Pressable, ImageBackground } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Pressable,
+  ImageBackground
+} from 'react-native'
+import { router } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
+import { collection, getDocs } from 'firebase/firestore'
+
 import { getUserType, gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
-import homeIcon from '@/assets/images/home.png';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
-import { collection, getDocs } from 'firebase/firestore'
-import { Href, router } from 'expo-router'
+
+import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 
 type ItemData = {
@@ -63,7 +73,7 @@ const chatlanding = () => {
       colors={gradientColor}
     >
       <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Chat with your {userCounterpart}s</Text>
+        <Text style={tabStyles.tabHeader}>Chat with your {userCounterpart}s</Text>
       </View>
 
       <SafeAreaView style={styles.contentContainer}>
@@ -93,6 +103,11 @@ const tabStyles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     overflow: "hidden"
+  },
+  tabHeader: {
+    fontSize: 30, 
+    fontWeight: "bold",
+    marginLeft: 20,
   }
 });
 

@@ -19,6 +19,7 @@ import { Link } from 'expo-router';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { styles, gradientColor } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
+
 import whiteBox from '@/assets/images/white-box.png';
 import progressIcon from '@/assets/images/graph.png';
 import calendarIcon from '@/assets/images/calendar.png';

@@ -10,15 +10,22 @@ import {
   Pressable,
   TouchableOpacity,
 } from 'react-native';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where
+} from 'firebase/firestore'
 import Modal from 'react-native-modal';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams } from 'expo-router'
-import { addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { getUserType, gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
+
+import Ionicons from '@expo/vector-icons/Ionicons';
 import homeIcon from '@/assets/images/home.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import whiteBox from '@/assets/images/white-box.png';
@@ -251,6 +258,7 @@ const tabStyles = StyleSheet.create({
     borderColor: "#EDEDED",
     width: "80%",
     minHeight: "60%",
+    color: "black",
     overflow: "hidden" 
   },
 });

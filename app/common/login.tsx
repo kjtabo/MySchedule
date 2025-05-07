@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 import { gradientColor, setUserType, styles } from '@/constants/styles';
+
 import whiteBox from '@/assets/images/white-box.png';
 
 const login = () => {
@@ -57,7 +58,7 @@ const login = () => {
           placeholder='Password'
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={true}
         />
         <Pressable onPress={signIn}>
           <ImageBackground
@@ -84,6 +85,7 @@ const tabStyles = StyleSheet.create({
   welcomeText: {
     fontSize: 40,
     marginTop: 10,
+    color: "black",
     alignSelf: "center",
     fontWeight: "bold"
   },
@@ -94,6 +96,7 @@ const tabStyles = StyleSheet.create({
     borderRadius: 30,
     marginVertical: 10,
     paddingHorizontal: 10,
+    color: "black",
     backgroundColor: "white",
     alignSelf: "center",
     overflow: "hidden"

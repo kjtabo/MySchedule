@@ -28,11 +28,14 @@ import {
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import Entypo from '@expo/vector-icons/Entypo';
-import Feather from '@expo/vector-icons/Feather';
+
+import { sendNotifications } from '@/components/notifications-manager';
 import { gradientColor, styles } from '@/constants/styles';
 import CustomKeyboardView from '@/components/custom-keyboard-view';
 import MessageItem from '@/components/message-item';
+
+import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
 
 const getRoomID = (uid1: string | undefined, uid2: string | undefined) => {
   if (uid1 == undefined || uid2 == undefined) return '';
@@ -114,6 +117,10 @@ const chatroom = () => {
         message: message,
         createdOn: Timestamp.fromDate(new Date())
       });
+      
+      const token = "ExponentPushToken[vidUYsEKJdoQ4QsRUV9ewg]";
+      const title = `${user?.displayName} sent you a message.`
+      sendNotifications(token, title, message);
     } catch (error: any) {
       Alert.alert("Message", error.message)
     }
@@ -157,7 +164,7 @@ const chatroom = () => {
                 <TextInput
                   ref={inputRef}
                   onChangeText={value => textRef.current = value}
-                  style={{ flex: 1, fontSize: 20, marginRight: 5 }}
+                  style={{ flex: 1, fontSize: 20, marginRight: 5, color: "black" }}
                   placeholder='Message'
                 />
                 <TouchableOpacity 
@@ -184,15 +191,17 @@ const tabStyles = StyleSheet.create({
   },
   chatBoxContainer: {
     flex: 0.88,
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     overflow: "visible",
   },
   textInputStyle: {
     borderRadius: 30,
+    marginHorizontal: 10,
     borderWidth: 2,
     alignSelf: "center",
     justifyContent:"space-between",
     flexDirection: "row",
+    color: "black",
     backgroundColor: "white",
     borderColor: "#EDEDED",
   },

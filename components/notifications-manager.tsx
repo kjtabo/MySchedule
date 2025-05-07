@@ -11,6 +11,7 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { EventSubscription } from "expo-modules-core";
+import { setPushToken } from "@/constants/expo-push-token";
 
 export async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
@@ -40,7 +41,7 @@ export async function registerForPushNotificationsAsync() {
       const pushTokenString = (
         await Notifications.getExpoPushTokenAsync({ projectId })
       ).data;
-      console.log(pushTokenString);
+      // console.log(pushTokenString);
       return pushTokenString;
     } catch (e: unknown) {
       throw new Error(`${e}`);
@@ -71,6 +72,8 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
+var notificationsArray: any[] = [];
+
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children, }) => {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
@@ -84,10 +87,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       (token) => setExpoPushToken(token),
       (error) => setError(error)
     );
+    setPushToken(expoPushToken);
 
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       console.log("NOTIF RECEIVED", notification);
       setNotification(notification);
+      storeNotif();
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -101,15 +106,48 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     return () => {
       if (notificationListener.current)
-        Notifications.removeNotificationSubscription(notificationListener.current);
+        notificationListener.current.remove();
       if (responseListener.current)
-        Notifications.removeNotificationSubscription(responseListener.current);
+        responseListener.current.remove();
     };
   }, []);
+
+  const storeNotif = async () => {
+    console.log(notification)
+  }
 
   return (
     <NotificationContext.Provider value={{ expoPushToken, notification, error}}>
       {children}
     </NotificationContext.Provider>
   )
+}
+
+export const sendNotifications = async (receiverToken: string, title: string, body: string, data?: object) => {
+  const message = {
+    to: receiverToken,
+    sound: 'default',
+    title: title,
+    body: body,
+  };
+
+  const ticket = await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message)
+  });
+  console.log(ticket.status);
+}
+
+export const getRecentNotifications = () => {
+  if (notificationsArray.length >= 5) {
+    notificationsArray.length = 5
+    return notificationsArray;
+  }
+  else
+    return notificationsArray;
 }

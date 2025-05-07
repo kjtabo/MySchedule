@@ -2,29 +2,32 @@ import React, { useEffect, useReducer, useState } from 'react'
 import {
   Text,
   SafeAreaView,
+  View,
   Pressable,
   ImageBackground,
-  View,
   StyleSheet,
   FlatList
 } from 'react-native'
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   query,
   where
 } from 'firebase/firestore'
-import { router } from 'expo-router'
+import Entypo from '@expo/vector-icons/Entypo';
+import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
-import CalendarPicker from "react-native-calendar-picker";
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
-
 import homeIcon from '@/assets/images/home.png';
+import progressIcon from '@/assets/images/graph.png';
+import editIcon from '@/assets/images/edit.png';
 import whiteBox from '@/assets/images/white-box.png';
-import Entypo from '@expo/vector-icons/Entypo'
+import CalendarPicker from 'react-native-calendar-picker'
 
 var tasks: any = [];
 const getDateToday = () => {
@@ -32,24 +35,34 @@ const getDateToday = () => {
   return date.toISOString().split("T")[0];
 }
 
-const schedule = () => {
+const patientdetail = () => {
+  const { uid } = useLocalSearchParams();
+
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
-  
+
   const user = auth.currentUser;
 
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const [patientData, setPatientData] = useState<any>([]);
   const [calendarItems, setCalendarItems] = useState<any>({});
   const [activitiesToday, setActivitiesToday] = useState<any>({});
   const [hasActivities, setHasActivities] = useState(false);
   const [dateSelected, setDateSelected] = useState(new Date());
 
   useEffect(() => {
+    fetchPatientData();
     fetchTaskData();
   }, []);
 
+  const fetchPatientData = async () => {
+    const docRef = doc(db, "users", `${uid}`);
+    const data = await getDoc(docRef);
+    setPatientData(data.data());
+  }
+
   const fetchTaskData = async () => {
-    const docRef = collection(db, "users", `${user?.uid}`, "tasks");
+    const docRef = collection(db, "users", `${uid}`, "tasks");
     const q = query(docRef, where("dates", "!=", null));
     const data = await getDocs(q);
     tasks = data.docs.map((doc) => ({ ...doc.data() }));
@@ -87,7 +100,7 @@ const schedule = () => {
     return (
       <Pressable onPress={() => {router.push({
           pathname: "/common/datedetail",
-          params: {uid: user?.uid, selectedDate: selected, dailyTasks: JSON.stringify(activitiesToday)}
+          params: {uid: uid, selectedDate: selected, dailyTasks: JSON.stringify(activitiesToday)}
         })}}
       >
         <ImageBackground 
@@ -107,7 +120,9 @@ const schedule = () => {
       colors={gradientColor}
     >
       <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Schedule</Text>
+        <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+          {patientData.firstName} {patientData.lastName}
+        </Text>
       </View>
 
       <SafeAreaView style={styles.contentContainer}>
@@ -160,7 +175,17 @@ const schedule = () => {
         <NavigationButton 
           name={'Home'}
           icon={homeIcon}
-          navTo={"/patient/home"}
+          navTo={"therapist/home"}
+        />
+        <NavigationButton 
+          name={'Progress'}
+          icon={progressIcon}
+          navTo={{ pathname: `/common/progress`, params: {uid: uid}}}
+        />
+        <NavigationButton 
+          name={'New Activity'}
+          icon={editIcon}
+          navTo={`/therapist/newactivity/${uid}`}
         />
       </View>
     </LinearGradient>
@@ -191,4 +216,4 @@ const calendarStyles = StyleSheet.create({
   }
 });
 
-export default schedule 
+export default patientdetail

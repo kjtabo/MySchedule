@@ -21,9 +21,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { getUserType, gradientColor, styles } from '@/constants/styles';
+import { NavigationButton } from '@/components/nav-button';
+
 import whiteBox from '@/assets/images/white-box.png';
 import homeIcon from '@/assets/images/home.png';
-import { NavigationButton } from '@/components/nav-button';
 
 type ItemData = {
     displayName: string,

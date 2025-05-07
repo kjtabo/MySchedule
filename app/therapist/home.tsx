@@ -10,11 +10,12 @@ import {
 } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
 import { collection, getDocs } from 'firebase/firestore';
-import { Href, router } from 'expo-router';
+import { router } from 'expo-router';
 
 import { styles, gradientColor } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
+
 import notifsIcon from '@/assets/images/bell.png';
 import profileIcon from '@/assets/images/person.png';
 import whiteBox from '@/assets/images/white-box.png';
@@ -46,7 +47,7 @@ const home = () => {
   
   const renderItem = ({item}: {item: ItemData}) => {
     return (
-      <Pressable onPress={() => {router.push(`/therapist/details/${item.uid}` as Href)}}>
+      <Pressable onPress={() => {router.push({pathname: `/therapist/details`, params: {uid: item.uid}})}}>
         <ImageBackground
           style={tabStyles.buttonContainer}
           source={whiteBox}

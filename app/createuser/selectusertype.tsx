@@ -5,12 +5,14 @@ import {
   ImageBackground,
   StyleSheet,
   SafeAreaView,
-  Image
+  Image,
+  View
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router';
 
 import { gradientColor, styles } from '@/constants/styles'
+
 import whiteBox from '@/assets/images/white-box.png';
 import therapistIcon from '@/assets/images/therapist.png';
 import patientIcon from '@/assets/images/patient.png';
@@ -34,7 +36,10 @@ const selectusertype = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <Text style={styles.headerStyle}>Select role</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerStyle}>Select role</Text>
+      </View>
+
       <SafeAreaView style={{ ...styles.contentContainer, justifyContent: "center" }}>
         <SafeAreaView style={tabStyles.userTypeContainer}>
           <Pressable

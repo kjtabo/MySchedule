@@ -26,6 +26,7 @@ import Modal from 'react-native-modal'
 import { getUserType, gradientColor, styles } from '@/constants/styles'
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { NavigationButton } from '@/components/nav-button'
+
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 
@@ -210,6 +211,7 @@ const tabStyles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 30,
     paddingHorizontal: 10,
+    color: "black",
     backgroundColor: "white",
     alignSelf: "center",
     overflow: "hidden"

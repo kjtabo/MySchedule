@@ -9,15 +9,20 @@ import {
   TextInput,
   View
 } from 'react-native'
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc
+} from 'firebase/firestore';
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { gradientColor, styles } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
+
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 
@@ -224,6 +229,7 @@ const newactivity = () => {
           style={tabStyles.detailsContainer}
           source={whiteBox}
         >
+          <Text style={{ marginLeft: 20, marginTop: 13, fontWeight: "bold" }}>Task Details</Text>
           <TextInput 
             style={{ marginLeft: 10 }}
             placeholder='Details'
@@ -476,7 +482,6 @@ const tabStyles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 30,
-    justifyContent: "center",
     resizeMode: "cover",
     overflow: "hidden"
   },

@@ -10,12 +10,13 @@ import {
   TextInput
 } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
+import { collection, doc, setDoc } from 'firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
+
 import { gradientColor, styles } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
-
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
+
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 import react8 from '@/assets/images/reaction8.png';
@@ -122,7 +123,7 @@ const taskfeedback = () => {
         >
           <Text style={tabStyles.containerHeader}>Is there anything I want to say?</Text>
           <TextInput
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 10, color: "black" }}
             placeholder='Remarks'
             value={taskComment}
             onChangeText={setTaskComment}

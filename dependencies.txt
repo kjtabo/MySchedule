@@ -1,0 +1,16 @@
+// expo
+
+expo-linear-gradient
+expo-notifications
+expo-device
+
+// react-native
+
+react-native-modal
+react-native-calendar-picker
+react-native-community/datetimepicker
+react-native-async-storage/async-storage
+
+// others
+
+firebase

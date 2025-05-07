@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import {
   Text,
   ImageBackground,
@@ -6,9 +7,9 @@ import {
   SafeAreaView,
   View
 } from 'react-native'
-import React, { useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient';
+
 import { gradientColor, styles } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
 

@@ -5,7 +5,8 @@ import {
   TextInput,
   Pressable,
   ImageBackground,
-  StyleSheet
+  StyleSheet,
+  View
 } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -14,6 +15,7 @@ import { collection, doc, setDoc } from 'firebase/firestore';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { gradientColor, setUserType, styles } from '@/constants/styles';
+
 import whiteBox from '@/assets/images/white-box.png';
 
 const therapistinfo = () => {
@@ -65,8 +67,11 @@ const therapistinfo = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={{ ...styles.contentContainer, justifyContent: "center" }}>
+      <View style={styles.headerContainer}>
         <Text style={tabStyles.welcomeText}>Therapist Information</Text>
+      </View>
+
+      <SafeAreaView style={{ ...styles.contentContainer, justifyContent: "center" }}>
         <TextInput
           style={tabStyles.searchInput}
           placeholder='First Name'
@@ -134,6 +139,7 @@ const tabStyles = StyleSheet.create({
     borderRadius: 30,
     marginVertical: 10,
     paddingHorizontal: 10,
+    color: "black",
     backgroundColor: "white",
     alignSelf: "center",
     overflow: "hidden"

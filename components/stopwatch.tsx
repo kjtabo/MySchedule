@@ -1,5 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Button, StyleSheet, View, Text, Pressable, ImageBackground } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Pressable,
+  ImageBackground
+} from 'react-native';
 import whiteBox from '@/assets/images/white-box.png';
 
 const Stopwatch = ({getTimeValue}: {getTimeValue: (time: number) => void}) => {

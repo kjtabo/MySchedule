@@ -16,19 +16,19 @@ import {
   query,
   where
 } from 'firebase/firestore'
-import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Agenda, AgendaSchedule } from 'react-native-calendars'
+import CalendarPicker from 'react-native-calendar-picker'
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig'
 import { gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
+
+import Entypo from '@expo/vector-icons/Entypo';
 import homeIcon from '@/assets/images/home.png';
 import progressIcon from '@/assets/images/graph.png';
 import editIcon from '@/assets/images/edit.png';
 import whiteBox from '@/assets/images/white-box.png';
-import CalendarPicker from 'react-native-calendar-picker'
 
 var tasks: any = [];
 const getDateToday = () => {
@@ -181,12 +181,12 @@ const patientdetail = () => {
         <NavigationButton 
           name={'Progress'}
           icon={progressIcon}
-          navTo={{ pathname: `/common/progress`, params: {uid: uid}}}
+          navTo={{ pathname: `/common/progress`, params: {uid: uid} }}
         />
         <NavigationButton 
           name={'New Activity'}
           icon={editIcon}
-          navTo={`/therapist/newactivity/${uid}`}
+          navTo={{ pathname: `/therapist/newactivity`, params: {uid: uid} }}
         />
       </View>
     </LinearGradient>

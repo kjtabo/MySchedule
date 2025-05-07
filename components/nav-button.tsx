@@ -5,8 +5,8 @@ import React, {
   Pressable,
   StyleSheet
 } from "react-native"
-import whiteBox from '@/assets/images/white-box.png';
 import { Href, router } from "expo-router"
+import whiteBox from '@/assets/images/white-box.png';
 
 export const NavigationButton = ({ 
     isNavButton=true,

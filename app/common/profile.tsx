@@ -8,14 +8,20 @@ import {
   FlatList,
   View,
 } from 'react-native';
-import { Href, router, useLocalSearchParams } from 'expo-router';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs
+} from 'firebase/firestore';
+import { Href, router } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { styles, gradientColor, getUserType } from '@/constants/styles';
 import { NavigationButton } from '@/components/nav-button';
+
 import whiteBox from '@/assets/images/white-box.png';
 import homeIcon from '@/assets/images/home.png';
 
@@ -124,14 +130,14 @@ const profile = () => {
           </ImageBackground>
         </Pressable>
 
-        <Pressable onPress={() => {router.push("/common/settings")}}>
+        {/* <Pressable onPress={() => {router.push("/common/settings")}}>
           <ImageBackground
             style={tabStyles.buttonContainer}
             source={whiteBox}
           >
             <Text style={tabStyles.buttonText}>App Settings</Text>
           </ImageBackground>
-        </Pressable>
+        </Pressable> */}
 
         <Pressable onPress={() => {router.push("/common/about")}}>
           <ImageBackground

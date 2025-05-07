@@ -1,8 +1,11 @@
-const { getDefaultConfig } = require("expo/metro-config");
-const { withNativeWind } = require('nativewind/metro');
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require('expo/metro-config');
 
-const config = getDefaultConfig(__dirname)
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+// Firebase/Expo SDK 53 workaround metro.config.js
 config.resolver.sourceExts.push('cjs');
 config.resolver.unstable_enablePackageExports = false;
 
-module.exports = withNativeWind(config, { input: './app/globals.css' })
+module.exports = config;
