@@ -24,9 +24,12 @@ export const styles = StyleSheet.create({
   },
   homeContainer: {
     flex: 0.7,
+    paddingVertical: 10,
+    overflow: "scroll"
   },
   contentContainer: {
     flex: 0.7,
+    paddingVertical: 10,
     overflow: "scroll"
   },
   headerStyle: {

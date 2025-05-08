@@ -6,7 +6,8 @@ import {
   StyleSheet,
   SafeAreaView,
   Image,
-  View
+  View,
+  TouchableOpacity
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router';
@@ -78,7 +79,7 @@ const selectusertype = () => {
             </ImageBackground>
           </Pressable>
         </SafeAreaView>
-        <Pressable onPress={() => {
+        <TouchableOpacity activeOpacity={0.7} onPress={() => {
             if (isPatient) router.push('/createuser/patientinfo');
             else if (isTherapist) router.push('/createuser/therapistinfo');
             else alert("Please select a role.");
@@ -90,15 +91,15 @@ const selectusertype = () => {
           >
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>Next</Text>
           </ImageBackground>
-        </Pressable>
-        <Pressable onPress={() => router.replace("/common/login")}>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.replace("/common/login")}>
           <ImageBackground
             style={tabStyles.loginButtons}
             source={whiteBox}
           >
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back to Login</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
       </SafeAreaView>
     </LinearGradient>
   )

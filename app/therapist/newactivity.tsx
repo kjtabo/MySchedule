@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import {
+  ActivityIndicator,
   Button,
   ImageBackground,
   Platform,
@@ -7,12 +8,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View
 } from 'react-native'
 import {
   collection,
   doc,
-  getDoc,
   setDoc
 } from 'firebase/firestore';
 import { Href, router, useLocalSearchParams } from 'expo-router';
@@ -25,17 +26,18 @@ import { NavigationButton } from '@/components/nav-button';
 
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 const newactivity = () => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  const { uid } = useLocalSearchParams();
+  const { uid, patientName } = useLocalSearchParams();
   
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
 
   const user = auth.currentUser;
 
-  const [patientData, setPatientData] = useState<any>([]);
   const [taskName, setTaskName] = useState("");
   const [taskDetails, setTaskDetails] = useState('');
 
@@ -59,15 +61,7 @@ const newactivity = () => {
   const [isSelectedSa, setSelectedSa] = useState(false);
   const [isSelectedSu, setSelectedSu] = useState(false);
 
-  useEffect(() => {
-    fetchPatientData();
-  }, [user]);
-
-  const fetchPatientData = async () => {
-    const docRef = doc(db, "users", `${uid}`);
-    const data = await getDoc(docRef);
-    setPatientData(data.data());
-  }
+  const [isLoading, setLoading] = useState(false);
 
   const getDateTimes = () => {
     const selectedDays = [isSelectedSu, isSelectedM, isSelectedT, isSelectedW, isSelectedTh, isSelectedF, isSelectedSa];
@@ -187,6 +181,8 @@ const newactivity = () => {
       return
     }
 
+    setLoading(true);
+
     const dateTimes = getDateTimes();
 
     const patientTasksCollection = collection(db, `/users/${uid}/tasks`);
@@ -198,6 +194,8 @@ const newactivity = () => {
       deadline: deadline,
       doneDates: [],
     });
+
+    setLoading(false);
     router.replace(`/therapist/details/${uid}` as Href);
   }
 
@@ -206,9 +204,14 @@ const newactivity = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>{patientData.firstName} {patientData.lastName}</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={
+          <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+            {patientName} 
+          </Text>
+        }
+      />
       
       <View style={styles.contentContainer}>
         {/* Task Name */}
@@ -217,10 +220,12 @@ const newactivity = () => {
           source={whiteBox}
         >
           <TextInput 
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 10, color: "black" }}
             placeholder='Activity'
+            placeholderTextColor={"#BBBBBB"}
             value={taskName}
             onChangeText={setTaskName}
+            editable={!isLoading}
           />
         </ImageBackground>
 
@@ -231,10 +236,12 @@ const newactivity = () => {
         >
           <Text style={{ marginLeft: 20, marginTop: 13, fontWeight: "bold" }}>Task Details</Text>
           <TextInput 
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 20, color: "black" }}
             placeholder='Details'
+            placeholderTextColor={"#BBBBBB"}
             value={taskDetails}
             onChangeText={setTaskDetails}
+            editable={!isLoading}
           />
         </ImageBackground>
 
@@ -248,7 +255,7 @@ const newactivity = () => {
             <TextInput
               placeholder="Set start date"
               value={startDateTitle}
-              placeholderTextColor="#C4C4C4"
+              placeholderTextColor="#BBBBBB"
               editable={false}
             />
           </Pressable>
@@ -257,7 +264,7 @@ const newactivity = () => {
             <TextInput
               placeholder="Set end date"
               value={endDateTitle}
-              placeholderTextColor="#C4C4C4"
+              placeholderTextColor="#BBBBBB"
               editable={false}
             />
           </Pressable>
@@ -273,7 +280,7 @@ const newactivity = () => {
             <TextInput
               placeholder="Set deadline"
               value={deadlineTitle}
-              placeholderTextColor="#C4C4C4"
+              placeholderTextColor="#BBBBBB"
               editable={false}
             />
           </Pressable>
@@ -413,15 +420,18 @@ const newactivity = () => {
             </Pressable>
           </View>
         </ImageBackground>
-
-        <Pressable onPress={submitActivity}>
-          <ImageBackground
-            style={tabStyles.logOutContainer}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Save Task</Text>
-          </ImageBackground>
-        </Pressable>
+        
+        {isLoading ? <ActivityIndicator size={"small"} color={"white"}/> : 
+          <TouchableOpacity activeOpacity={0.7} onPress={submitActivity}>
+            <ImageBackground
+              style={tabStyles.logOutContainer}
+              source={whiteBox}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>Save Task</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        }
+        
         {isSelectStartOpen && (
           <DateTimePicker
             mode='date'

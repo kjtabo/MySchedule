@@ -31,6 +31,8 @@ import react4 from '@/assets/images/reaction4.png';
 import react3 from '@/assets/images/reaction3.png';
 import react2 from '@/assets/images/reaction2.png';
 import react1 from '@/assets/images/reaction1.png';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 var taskList: any[] = [];
 var doneTasks: any[] = []
@@ -105,9 +107,10 @@ const progress = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Progress</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>Progress</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <ImageBackground

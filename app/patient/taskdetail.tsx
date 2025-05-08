@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Pressable,
   SafeAreaView,
-  View
+  View,
+  TouchableOpacity
 } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,6 +17,8 @@ import { NavigationButton } from '@/components/nav-button';
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 import Stopwatch from '@/components/stopwatch';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 const taskdetail = () => {
   const params = useLocalSearchParams<{taskName: string, details: string, doneDates: string}>();
@@ -30,9 +33,10 @@ const taskdetail = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>{taskName}</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>{taskName}</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <ImageBackground
@@ -56,7 +60,8 @@ const taskdetail = () => {
           icon={homeIcon}
           navTo={"/patient/home"}
         />
-        <Pressable
+        <TouchableOpacity
+          activeOpacity={0.7}
           onPress={() => {
             router.push({
               pathname: "/patient/taskfeedback",
@@ -70,7 +75,7 @@ const taskdetail = () => {
           >
             <Text style={{ fontSize: 45, fontWeight: "bold" }}>Done!</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   )

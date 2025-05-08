@@ -8,6 +8,7 @@ import {
   Pressable,
   ImageBackground,
   View,
+  TouchableOpacity,
 } from 'react-native'
 import {
   and,
@@ -29,6 +30,8 @@ import { NavigationButton } from '@/components/nav-button'
 
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
+import CustomHeader from '@/components/header'
+import BackButton from '@/components/back-button'
 
 type ItemData = {
   firstName: string,
@@ -118,7 +121,7 @@ const patientthererapistrequest = () => {
 
   const renderItem = ({item} : {item: ItemData}) => {
     return (
-      <Pressable onPress={handleModal}>
+      <TouchableOpacity activeOpacity={0.7} onPress={handleModal}>
         <ImageBackground
           style={tabStyles.buttonContainer}
           source={whiteBox}
@@ -135,7 +138,7 @@ const patientthererapistrequest = () => {
                 <Text style={tabStyles.buttonText}>
                   Link with {item.firstName} {item.lastName}?
                 </Text>
-                <Pressable onPress={() => sendLinkingRequest(item)}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => sendLinkingRequest(item)}>
                   <ImageBackground
                     style={tabStyles.modalButtons}
                     source={whiteBox}
@@ -143,8 +146,8 @@ const patientthererapistrequest = () => {
                   >
                     <Text style={{ fontSize: 20, fontWeight: "bold" }}>Send Request</Text>
                   </ImageBackground>
-                </Pressable>
-                <Pressable onPress={() => setIsModalVisible(false)}>
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => setIsModalVisible(false)}>
                   <ImageBackground
                     style={tabStyles.modalButtons}
                     source={whiteBox}
@@ -152,12 +155,12 @@ const patientthererapistrequest = () => {
                   >
                     <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back</Text>
                   </ImageBackground>
-                </Pressable>
+                </TouchableOpacity>
               </ImageBackground>
             </SafeAreaView>
           </Modal>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
 
@@ -166,14 +169,16 @@ const patientthererapistrequest = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Request</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>Request</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <TextInput
           style={tabStyles.searchInput}
           placeholder={`Search for a ${userCounterpart}`} 
+          placeholderTextColor={"#BBBBBB"}
           value={toQuery}
           onChangeText={(text) => {setToQuery(text); fetchQueriedUsers();}}
         />
@@ -183,14 +188,14 @@ const patientthererapistrequest = () => {
           data={queriedUsers}
           renderItem={renderItem}
         />
-        <Pressable onPress={() => router.push("/common/activerequests")}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/common/activerequests")}>
           <ImageBackground
             style={tabStyles.seeRequestsButton}
             source={whiteBox}
           >
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>Check Received Requests</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
       </SafeAreaView>
 
       <View style={styles.navButtonContainer}>

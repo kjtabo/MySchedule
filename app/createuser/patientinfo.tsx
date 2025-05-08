@@ -6,7 +6,9 @@ import {
   Pressable,
   ImageBackground,
   StyleSheet,
-  View
+  View,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import { collection, setDoc, doc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -30,6 +32,7 @@ const patientinfo = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setLoading] = useState(false);
 
   const signUp = async () => {
     if (firstName == "" || lastName == "" || conditions == "") {
@@ -41,6 +44,8 @@ const patientinfo = () => {
       alert("Passwords do not match.")
       return;
     }
+
+    setLoading(true);
 
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password);
@@ -57,8 +62,10 @@ const patientinfo = () => {
         });
       }
       setUserType("patient");
+      setLoading(false);
       if (user) router.replace("/patient/home");
     } catch (error: any) {
+      setLoading(false);
       console.log(error);
       alert("Sign In failed: " + error.message);
     }
@@ -77,57 +84,74 @@ const patientinfo = () => {
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='First Name'
+          placeholderTextColor={"#BBBBBB"}
           value={firstName}
           onChangeText={setFirstName}
+          editable={!isLoading}
         />
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='Last Name'
+          placeholderTextColor={"#BBBBBB"}
           value={lastName}
           onChangeText={setLastName}
+          editable={!isLoading}
         />
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='Conditions'
+          placeholderTextColor={"#BBBBBB"}
           value={conditions}
           onChangeText={setConditions}
+          editable={!isLoading}
         />
         <TextInput
           style={tabStyles.searchInput}
           placeholder='Email'
+          placeholderTextColor={"#BBBBBB"}
           value={email}
           onChangeText={setEmail}
+          editable={!isLoading}
         />
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='Password'
+          placeholderTextColor={"#BBBBBB"}
           value={password}
           onChangeText={setPassword}
+          editable={!isLoading}
           secureTextEntry
         />
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='Confirm Password'
+          placeholderTextColor={"#BBBBBB"}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          editable={!isLoading}
           secureTextEntry
         />
-        <Pressable onPress={signUp}>
-          <ImageBackground
-            style={tabStyles.loginButtons}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Make your account</Text>
-          </ImageBackground>
-        </Pressable>
-        <Pressable onPress={() => router.replace("/common/login")}>
-          <ImageBackground
-            style={tabStyles.loginButtons}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back to Login</Text>
-          </ImageBackground>
-        </Pressable>
+
+        {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{ marginTop: 10 }}/> :
+          <>
+            <TouchableOpacity activeOpacity={0.7} onPress={signUp}>
+              <ImageBackground
+                style={tabStyles.loginButtons}
+                source={whiteBox}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Make your account</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => router.replace("/common/login")}>
+              <ImageBackground
+                style={tabStyles.loginButtons}
+                source={whiteBox}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back to Login</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+          </>
+        }
       </SafeAreaView>
     </LinearGradient>
   )

@@ -25,6 +25,8 @@ import { NavigationButton } from '@/components/nav-button'
 import homeIcon from '@/assets/images/home.png';
 import whiteBox from '@/assets/images/white-box.png';
 import Entypo from '@expo/vector-icons/Entypo'
+import CustomHeader from '@/components/header'
+import BackButton from '@/components/back-button'
 
 var tasks: any = [];
 const getDateToday = () => {
@@ -106,9 +108,10 @@ const schedule = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Schedule</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>Schedule</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <View style={calendarStyles.calendarContainer}>

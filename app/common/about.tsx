@@ -11,6 +11,8 @@ import { getUserType, gradientColor, styles } from '@/constants/styles'
 import { NavigationButton } from '@/components/nav-button'
 
 import homeIcon from '@/assets/images/home.png';
+import CustomHeader from '@/components/header'
+import BackButton from '@/components/back-button'
 
 const about = () => {
   const userType = getUserType();
@@ -20,9 +22,10 @@ const about = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>About</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>About</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <View style={tabStyles.aboutContainer}>

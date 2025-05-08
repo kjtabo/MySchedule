@@ -6,7 +6,9 @@ import {
   Pressable,
   SafeAreaView,
   Text,
-  View
+  View,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import { LinearGradient } from "expo-linear-gradient";
 import { collection, getDocs } from 'firebase/firestore';
@@ -33,6 +35,7 @@ const home = () => {
   const patientsCollection = collection(db, `/users/${user?.uid}/patients`);
   
   const [patients, setPatients] = useState<any>([]);
+  const [isLoading, setLoading] = useState(true);
   
   useEffect(() => {
     fetchPatients();
@@ -43,18 +46,21 @@ const home = () => {
       const data = await getDocs(patientsCollection);
       setPatients(data.docs.map((doc) => ({ ...doc.data() })));
     }
+    setLoading(false);
   }
   
   const renderItem = ({item}: {item: ItemData}) => {
     return (
-      <Pressable onPress={() => {router.push({pathname: `/therapist/details`, params: {uid: item.uid}})}}>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => {
+        router.push({pathname: `/therapist/details`, params: {uid: item.uid, patientName: item.displayName}})
+      }}>
         <ImageBackground
           style={tabStyles.buttonContainer}
           source={whiteBox}
           >
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.displayName}</Text>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
   
@@ -68,17 +74,25 @@ const home = () => {
       </View>
 
       <SafeAreaView style={styles.homeContainer}>
-        <FlatList
-          data={patients}
-          renderItem={renderItem}
-        />
+        {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{marginTop: 80}}/> :
+          <>
+            {patients.length == 0 ?
+              <Text style={{ fontSize: 20, alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+                :
+              <FlatList
+                data={patients}
+                renderItem={renderItem}
+              />
+            }
+          </>
+        }
       </SafeAreaView>
 
       <View style={styles.navButtonContainer}>
         <NavigationButton 
           name={'Notifications'}
           icon={notifsIcon}
-          navTo={'/therapist/notifs'}
+          navTo={'/common/notifs'}
         />
         <NavigationButton 
           name={'Profile'}

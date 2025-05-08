@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import {
+  View,
   Text,
   TextInput,
   SafeAreaView,
   StyleSheet,
   Pressable,
-  ImageBackground
+  ImageBackground,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import { Href, router } from "expo-router";
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -23,18 +26,22 @@ const login = () => {
 
   const [email, setEmail] = useState('therapist1@test.com');
   const [password, setPassword] = useState('testtest');
+  const [isLoading, setLoading] = useState(false);
 
   const signIn = async () => {
+    setLoading(true);
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
       if (user) {
         const docRef = doc(db, "users", user.user.uid);
         const userData = await getDoc(docRef);
         setUserType(userData.data()?.type);
+        setLoading(false);
         router.replace(`/${userData.data()?.type}/home` as Href);
       }
     } catch (error: any) {
       console.log(error);
+      setLoading(false);
       alert("Sign In failed: " + error.message);
     }
   }
@@ -44,39 +51,54 @@ const login = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <SafeAreaView style={{ ...styles.contentContainer, justifyContent: "center" }}>
+      <View style={{ flex: 0.3, justifyContent: "flex-end", paddingBottom: 20 }}>
         <Text style={tabStyles.welcomeText}>Welcome to</Text>
         <Text style={tabStyles.welcomeText}>MySchedule!</Text>
+      </View>
+
+      <View style={{ flex: 0.2 }}>
         <TextInput
           style={tabStyles.searchInput}
           placeholder='Email'
+          placeholderTextColor={"#BBBBBB"}
           value={email}
           onChangeText={setEmail}
+          editable={!isLoading}
         />
         <TextInput 
           style={tabStyles.searchInput}
           placeholder='Password'
+          placeholderTextColor={"#BBBBBB"}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={true}
+          editable={!isLoading}
         />
-        <Pressable onPress={signIn}>
-          <ImageBackground
-            style={tabStyles.loginButtons}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Login</Text>
-          </ImageBackground>
-        </Pressable>
-        <Pressable onPress={() => router.replace('/createuser/selectusertype')}>
-          <ImageBackground
-            style={tabStyles.loginButtons}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Create an account</Text>
-          </ImageBackground>
-        </Pressable>
-      </SafeAreaView>
+      </View>
+
+      <View style={{ flex: 0.5 }}>
+        {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{marginTop: 30}}/> :
+          <>
+            <TouchableOpacity activeOpacity={0.7} onPress={signIn}>
+              <ImageBackground
+                style={tabStyles.loginButtons}
+                source={whiteBox}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Login</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 20, alignSelf: "center", marginBottom: 5 }}>or</Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => router.replace('/createuser/selectusertype')}>
+              <ImageBackground
+                style={tabStyles.loginButtons}
+                source={whiteBox}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Create an account</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+          </>
+        }
+      </View>
     </LinearGradient>
   )
 }

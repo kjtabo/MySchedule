@@ -1,11 +1,14 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import {
   ImageBackground,
+  Image,
   Text,
   StyleSheet,
   FlatList,
   SafeAreaView,
-  View
+  View,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import {
   collection,
@@ -14,7 +17,7 @@ import {
   where
 } from 'firebase/firestore';
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { styles, gradientColor } from '@/constants/styles';
@@ -24,6 +27,8 @@ import whiteBox from '@/assets/images/white-box.png';
 import progressIcon from '@/assets/images/graph.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import profileIcon from '@/assets/images/person.png';
+import notifsIcon from '@/assets/images/bell.png';
+import CustomHeader from '@/components/header';
 
 var taskData: any[] = [];
 var taskReminders: any[] = [];
@@ -51,6 +56,7 @@ const home = () => {
   const user = auth.currentUser;
 
   const [hasReminders, setHasReminders] = useState(false);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTaskData();
@@ -75,6 +81,7 @@ const home = () => {
       }
     }
 
+    setLoading(false);
     forceUpdate();
   }
 
@@ -124,31 +131,61 @@ const home = () => {
     style={styles.backgroundContainer}
     colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Today's Tasks</Text>
-      </View>
+      <CustomHeader
+        centerChildren={
+          <Text style={styles.headerStyle}>Today's Tasks</Text>
+        }
+        rightChildren={
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/common/notifs")}>
+            <View style={{
+                height: 50,
+                width: 50,
+                borderRadius: 25,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "white",
+                overflow: "hidden"
+              }}
+            >
+              <Image style={{ width: 35, height: 35 }} source={notifsIcon}/>
+            </View>
+          </TouchableOpacity>
+        }
+      />
 
       <SafeAreaView style={styles.homeContainer}>
         <SafeAreaView style={tabStyles.tasksContainer}>
-          <FlatList
-            data={taskData}
-            renderItem={renderTaskItem}
-          />
+          {isLoading ? <ActivityIndicator size={"large"} color={"white"}/> :
+            <>
+              {taskData.length == 0 ?
+                <Text style={{ fontSize: 20, alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+                  :
+                <FlatList
+                  data={taskData}
+                  renderItem={renderTaskItem}
+                />
+              }
+            </>
+          }
         </SafeAreaView>
         <ImageBackground
           style={tabStyles.remindersContainer}
           source={whiteBox}
         >
           <Text style={tabStyles.containerHeader}>Reminders</Text>
-          {hasReminders && (
-            <FlatList
-              data={taskData}
-              renderItem={renderReminderItem}
-            />
-          )}
-          {!hasReminders && (
-            <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
-          )}
+          {isLoading ? <ActivityIndicator size={"small"} color={"#EDEDED"}/> :
+            <>
+              {hasReminders && (
+                <FlatList
+                  data={taskData}
+                  renderItem={renderReminderItem}
+                />
+              )}
+              {!hasReminders && (
+                <Text style={{ alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+              )}
+            </>
+          }
         </ImageBackground>
       </SafeAreaView>
       

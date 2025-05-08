@@ -29,6 +29,8 @@ import homeIcon from '@/assets/images/home.png';
 import progressIcon from '@/assets/images/graph.png';
 import editIcon from '@/assets/images/edit.png';
 import whiteBox from '@/assets/images/white-box.png';
+import CustomHeader from '@/components/header'
+import BackButton from '@/components/back-button'
 
 var tasks: any = [];
 const getDateToday = () => {
@@ -37,7 +39,7 @@ const getDateToday = () => {
 }
 
 const patientdetail = () => {
-  const { uid } = useLocalSearchParams();
+  const { uid, patientName } = useLocalSearchParams();
 
   const auth = FIREBASE_AUTH;
   const db = FIREBASE_DB;
@@ -52,15 +54,8 @@ const patientdetail = () => {
   const [dateSelected, setDateSelected] = useState(new Date());
 
   useEffect(() => {
-    fetchPatientData();
     fetchTaskData();
   }, []);
-
-  const fetchPatientData = async () => {
-    const docRef = doc(db, "users", `${uid}`);
-    const data = await getDoc(docRef);
-    setPatientData(data.data());
-  }
 
   const fetchTaskData = async () => {
     const docRef = collection(db, "users", `${uid}`, "tasks");
@@ -120,11 +115,14 @@ const patientdetail = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
-          {patientData.firstName} {patientData.lastName}
-        </Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={
+          <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+            {patientName} 
+          </Text>
+        }
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <View style={calendarStyles.calendarContainer}>
@@ -186,7 +184,7 @@ const patientdetail = () => {
         <NavigationButton 
           name={'New Activity'}
           icon={editIcon}
-          navTo={{ pathname: `/therapist/newactivity`, params: {uid: uid} }}
+          navTo={{ pathname: `/therapist/newactivity`, params: {uid: uid, patientName: patientName} }}
         />
       </View>
     </LinearGradient>

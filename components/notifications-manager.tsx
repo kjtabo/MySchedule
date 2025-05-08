@@ -12,6 +12,8 @@ import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { EventSubscription } from "expo-modules-core";
 import { setPushToken } from "@/constants/expo-push-token";
+import { addDoc, collection } from "firebase/firestore";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 
 export async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
@@ -72,15 +74,18 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
-var notificationsArray: any[] = [];
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children, }) => {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+  // const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const notificationListener = useRef<EventSubscription>();
   const responseListener = useRef<EventSubscription>();
+
+  const db = FIREBASE_DB;
+  
+  let notification: Notifications.Notification | null;
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(
@@ -89,9 +94,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     );
     setPushToken(expoPushToken);
 
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log("NOTIF RECEIVED", notification);
-      setNotification(notification);
+    notificationListener.current = Notifications.addNotificationReceivedListener((notif) => {
+      // console.log("NOTIF RECEIVED", notif);
+      // setNotification(notif);
+      console.log("Notification Received")
+      notification = notif;
       storeNotif();
     });
 
@@ -113,7 +120,27 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   }, []);
 
   const storeNotif = async () => {
-    console.log(notification)
+    const user = FIREBASE_AUTH.currentUser;
+    const notifData = notification?.request?.content;
+
+    if (notifData != undefined && notifData?.data?.receiver == user?.uid) {
+      const notifCollection = collection(db, "users", `${user?.uid}`, "notifs");
+      await addDoc(notifCollection, {
+        title: notifData.title,
+        body: notifData.body,
+        data: notifData.data,
+        read: false
+      });
+    }
+    else if (notifData != undefined) {
+      const notifCollection = collection(db, "users", `${notifData?.data?.receiver}`, "notifs");
+      await addDoc(notifCollection, {
+        title: notifData.title,
+        body: notifData.body,
+        data: notifData.data,
+        read: false
+      });
+    }
   }
 
   return (
@@ -124,11 +151,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 }
 
 export const sendNotifications = async (receiverToken: string, title: string, body: string, data?: object) => {
+  const user = FIREBASE_AUTH.currentUser;
   const message = {
     to: receiverToken,
     sound: 'default',
     title: title,
     body: body,
+    data: { ...data, "sender": user?.uid }
   };
 
   const ticket = await fetch('https://exp.host/--/api/v2/push/send', {
@@ -140,14 +169,4 @@ export const sendNotifications = async (receiverToken: string, title: string, bo
     },
     body: JSON.stringify(message)
   });
-  console.log(ticket.status);
-}
-
-export const getRecentNotifications = () => {
-  if (notificationsArray.length >= 5) {
-    notificationsArray.length = 5
-    return notificationsArray;
-  }
-  else
-    return notificationsArray;
 }

@@ -29,6 +29,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import homeIcon from '@/assets/images/home.png';
 import calendarIcon from '@/assets/images/calendar.png';
 import whiteBox from '@/assets/images/white-box.png';
+import BackButton from '@/components/back-button';
+import CustomHeader from '@/components/header';
 
 const getDateToday = () => {
   return new Date().toISOString().split("T")[0];
@@ -92,9 +94,10 @@ const datedetail = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Schedule</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>Schedule</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <ImageBackground
@@ -146,7 +149,7 @@ const datedetail = () => {
                   />
                 </View>
                 <View style={{ flex: 0.2, alignItems: "center" }}>
-                  <Pressable onPress={submitReminder}>
+                  <TouchableOpacity activeOpacity={0.7} onPress={submitReminder}>
                     <ImageBackground
                       style={tabStyles.modalButtons}
                       source={whiteBox}
@@ -154,8 +157,8 @@ const datedetail = () => {
                     >
                       <Text style={{ fontSize: 20, fontWeight: "bold" }}>Submit</Text>
                     </ImageBackground>
-                  </Pressable>
-                  <Pressable onPress={() => setModalVisible(false)}>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => setModalVisible(false)}>
                     <ImageBackground
                       style={tabStyles.modalButtons}
                       source={whiteBox}
@@ -163,7 +166,7 @@ const datedetail = () => {
                     >
                       <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back</Text>
                     </ImageBackground>
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               </View>
             </Modal>

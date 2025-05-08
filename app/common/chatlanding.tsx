@@ -6,7 +6,9 @@ import {
   SafeAreaView,
   FlatList,
   Pressable,
-  ImageBackground
+  ImageBackground,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import { router } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -40,6 +42,7 @@ const chatlanding = () => {
   const userCounterpart = userType == "therapist" ? "Patient" : "Therapist";
 
   const [linkedUsersList, setLinkedUsersList] = useState<any>([]);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLinkedUsersList();
@@ -49,11 +52,12 @@ const chatlanding = () => {
     const linkedUsersListCollection = collection(db, "users", `${user?.uid}`, `${userCounterpart.toLowerCase()}s`);
     const data = await getDocs(linkedUsersListCollection);
     setLinkedUsersList(data.docs.map((doc) => ({ ...doc.data() })));
+    setLoading(false);
   }
 
   const renderItem = ({item}: {item: ItemData}) => {
     return (
-      <Pressable onPress={() => {
+      <TouchableOpacity activeOpacity={0.7} onPress={() => {
           router.push({pathname: "/common/chatroom", params: { displayName: item.displayName, uid: item.uid }})
         }}
       >
@@ -63,7 +67,7 @@ const chatlanding = () => {
         >
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.displayName}</Text>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
 
@@ -77,10 +81,12 @@ const chatlanding = () => {
       </View>
 
       <SafeAreaView style={styles.contentContainer}>
-        <FlatList
-          data={linkedUsersList}
-          renderItem={renderItem}
-        />
+        {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{marginTop: 80}}/> :
+          <FlatList
+            data={linkedUsersList}
+            renderItem={renderItem}
+          />
+        }
       </SafeAreaView>
       
       <View style={styles.navButtonContainer}>

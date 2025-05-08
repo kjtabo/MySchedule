@@ -12,7 +12,8 @@ import {
   TextInput,
   Alert,
   ScrollView,
-  Keyboard
+  Keyboard,
+  ActivityIndicator
 } from 'react-native';
 import {
   collection,
@@ -54,6 +55,8 @@ const chatroom = () => {
   const user = auth.currentUser;
 
   const [messages, setMessages] = useState<DocumentData[]>([]);
+  const [isLoading, setLoading] = useState(true);
+
   const textRef = useRef('');
   const inputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -75,6 +78,7 @@ const chatroom = () => {
       'keyboardDidShow', updateScrollView
     )
 
+    setLoading(false);
     return () => {
       unsub();
       KeyboardDidShowListener.remove();
@@ -120,7 +124,7 @@ const chatroom = () => {
       
       const token = "ExponentPushToken[vidUYsEKJdoQ4QsRUV9ewg]";
       const title = `${user?.displayName} sent you a message.`
-      sendNotifications(token, title, message);
+      sendNotifications(token, title, message, {"receiver": otherUID});
     } catch (error: any) {
       Alert.alert("Message", error.message)
     }
@@ -142,21 +146,23 @@ const chatroom = () => {
         <SafeAreaView style={tabStyles.chatBoxContainer}>
           <View style={{ flex: 1, justifyContent: "space-between", overflow: "visible"}}>
             {/* Message List */}
-            <View style={{ flex: 1 }}>
-              <ScrollView
-                ref={scrollViewRef}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: 10 }}
-              >
-                {
-                  messages.map((message: any, index: any) => {
-                    return ( 
-                      <MessageItem message={message} currentUserID={user?.uid} key={index}/>
-                    )
-                  })
-                }
-              </ScrollView>
-            </View>
+            {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{ marginTop: 80 }}/> : 
+              <View style={{ flex: 1 }}>
+                <ScrollView
+                  ref={scrollViewRef}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingTop: 10 }}
+                >
+                  {
+                    messages.map((message: any, index: any) => {
+                      return ( 
+                        <MessageItem message={message} currentUserID={user?.uid} key={index}/>
+                      )
+                    })
+                  }
+                </ScrollView>
+              </View>
+            }
 
             {/* Text Input */}
             <View style={{ marginBottom: 10, paddingTop: 2 }}>
@@ -168,8 +174,7 @@ const chatroom = () => {
                   placeholder='Message'
                 />
                 <TouchableOpacity 
-                  className="bg-neutral-200 p-2 rounded-full"
-                  style={{ justifyContent: "center", marginRight: 5, marginVertical: 5 }}
+                  style={tabStyles.sendButtonStyle}
                   onPress={sendMessage}  
                 >
                   <Feather name="send" size={25} color="737373"/>
@@ -191,14 +196,15 @@ const tabStyles = StyleSheet.create({
   },
   chatBoxContainer: {
     flex: 0.88,
-    // justifyContent: "space-between",
     overflow: "visible",
   },
   textInputStyle: {
     borderRadius: 30,
     marginHorizontal: 10,
     borderWidth: 2,
+    paddingLeft: 5,
     alignSelf: "center",
+    alignItems: "center",
     justifyContent:"space-between",
     flexDirection: "row",
     color: "black",
@@ -214,6 +220,17 @@ const tabStyles = StyleSheet.create({
     backgroundColor: "white",
     overflow: "hidden"
   },
+  sendButtonStyle: {
+    height: 40,
+    width: 40,
+    marginRight: 5,
+    marginVertical: 5,
+    borderRadius: 20,
+    padding: 2,
+    backgroundColor: "#EDEDED",
+    alignItems: "center",
+    justifyContent: "center",
+  }
 })
 
 export default chatroom;

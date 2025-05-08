@@ -7,7 +7,9 @@ import {
   ImageBackground,
   Pressable,
   Image,
-  TextInput
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { collection, doc, setDoc } from 'firebase/firestore';
@@ -27,6 +29,8 @@ import react4 from '@/assets/images/reaction4.png';
 import react3 from '@/assets/images/reaction3.png';
 import react2 from '@/assets/images/reaction2.png';
 import react1 from '@/assets/images/reaction1.png';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 const getDateToday = () => {
   const date = new Date();
@@ -46,6 +50,7 @@ const taskfeedback = () => {
 
   const [selectedReaction, setSelectedReaction] = useState(0);
   const [taskComment, setTaskComment] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
   const toggleOpacity = (id: number) => {
     setSelectedReaction(selectedReaction == id ? 0 : id);
@@ -61,6 +66,8 @@ const taskfeedback = () => {
       return;
     }
 
+    setLoading(true);
+
     doneDates.push(getDateToday());
     const tasksCollection = collection(db, `users/${user?.uid}/tasks`);
     await setDoc(doc(tasksCollection, taskName), {
@@ -70,6 +77,7 @@ const taskfeedback = () => {
       patientComment: taskComment
     }, {merge: true});
 
+    setLoading(false);
     router.replace("/patient/home");
   }
 
@@ -78,9 +86,10 @@ const taskfeedback = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>{taskName}</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>{taskName}</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
         <ImageBackground
@@ -117,6 +126,7 @@ const taskfeedback = () => {
             </Pressable>
           </View>
         </ImageBackground>
+        
         <ImageBackground
           style={tabStyles.commentsContainer}
           source={whiteBox}
@@ -125,18 +135,23 @@ const taskfeedback = () => {
           <TextInput
             style={{ marginLeft: 10, color: "black" }}
             placeholder='Remarks'
+            placeholderTextColor={"#BBBBBB"}
             value={taskComment}
             onChangeText={setTaskComment}
+            editable={!isLoading}
           />
         </ImageBackground>
-        <Pressable onPress={submitFeedback}>
-          <ImageBackground
-            style={tabStyles.submitButtonContainer}
-            source={whiteBox}
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Submit!</Text>
-          </ImageBackground>
-        </Pressable>
+
+        {isLoading ? <ActivityIndicator size={"large"} color={"white"} style={{marginTop: 30}}/> :
+          <TouchableOpacity activeOpacity={0.7} onPress={submitFeedback}>
+            <ImageBackground
+              style={tabStyles.submitButtonContainer}
+              source={whiteBox}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>Submit!</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        }
       </SafeAreaView>
 
       <View style={styles.navButtonContainer}>
@@ -175,7 +190,7 @@ const tabStyles= StyleSheet.create({
   reactionRowContainer: {
     flex: 0.4,
     height: 15,
-    marginTop: 5,
+    marginTop: 10,
     flexWrap: "wrap",
   },
   commentsContainer: {

@@ -3,7 +3,8 @@ import React, {
   ImageBackground,
   Image,
   Pressable,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity
 } from "react-native"
 import { Href, router } from "expo-router"
 import whiteBox from '@/assets/images/white-box.png';
@@ -21,7 +22,7 @@ export const NavigationButton = ({
   }) => {
   if (isNavButton) {
     return (
-      <Pressable onPress={() => router.push(navTo as Href)}>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => router.push(navTo as Href)}>
         <ImageBackground
           style={navButtonStyles.navButtonBackground}
           source={whiteBox}
@@ -32,12 +33,12 @@ export const NavigationButton = ({
           />
           <Text style={navButtonStyles.navButtonText}>{name}</Text>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
   else {
     return (
-      <Pressable onPress={() => router.back()}>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()}>
         <ImageBackground
           style={navButtonStyles.navButtonBackground}
           source={whiteBox}
@@ -48,7 +49,7 @@ export const NavigationButton = ({
           />
           <Text style={navButtonStyles.navButtonText}>{name}</Text>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
 }
@@ -57,7 +58,6 @@ const navButtonStyles = StyleSheet.create({
   navButtonLogo: {
     width: 65,
     height: 65,
-    backgroundColor: "white",
   },
   navButtonBackground: {
     width: 105,

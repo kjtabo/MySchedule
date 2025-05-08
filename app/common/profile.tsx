@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import {
   Text,
   SafeAreaView,
@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import {
   collection,
@@ -24,6 +25,9 @@ import { NavigationButton } from '@/components/nav-button';
 
 import whiteBox from '@/assets/images/white-box.png';
 import homeIcon from '@/assets/images/home.png';
+import Modal from 'react-native-modal';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 var userData: any;
 var patientNumber: number;
@@ -39,6 +43,7 @@ const profile = () => {
   const userCounterpart = userType == "therapist" ? "Patient" : "Therapist";
 
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const [isModalVisible, setModalVisible] = useState(false);
   
   getAuth().onAuthStateChanged((user) => {
     if (!user) router.replace("/common/login");
@@ -80,9 +85,10 @@ const profile = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Profile</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={<Text style={styles.headerStyle}>Profile</Text>}
+      />
 
       <SafeAreaView style={styles.contentContainer}>
 
@@ -112,23 +118,23 @@ const profile = () => {
           )}
         </ImageBackground>
 
-        <Pressable onPress={() => {router.push("/common/patientthererapistrequest")}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => {router.push("/common/patientthererapistrequest")}}>
           <ImageBackground
             style={tabStyles.buttonContainer}
             source={whiteBox}
           >
             <Text style={tabStyles.buttonText}>Add a {userCounterpart}</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
 
-        <Pressable onPress={() => {router.push("/common/chatlanding" as Href)}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => {router.push("/common/chatlanding" as Href)}}>
           <ImageBackground
             style={tabStyles.buttonContainer}
             source={whiteBox}
           >
             <Text style={tabStyles.buttonText}>Message</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
 
         {/* <Pressable onPress={() => {router.push("/common/settings")}}>
           <ImageBackground
@@ -139,24 +145,53 @@ const profile = () => {
           </ImageBackground>
         </Pressable> */}
 
-        <Pressable onPress={() => {router.push("/common/about")}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => {router.push("/common/about")}}>
           <ImageBackground
             style={tabStyles.buttonContainer}
             source={whiteBox}
           >
             <Text style={tabStyles.buttonText}>About the app</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
 
-        <Pressable onPress={() => {auth.signOut()}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => {setModalVisible(true)}}>
           <ImageBackground
             style={tabStyles.logOutContainer}
             source={whiteBox}
           >
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>Log out</Text>
           </ImageBackground>
-        </Pressable>
+        </TouchableOpacity>
       </SafeAreaView>
+
+      <Modal isVisible={isModalVisible}>
+        <SafeAreaView>
+          <ImageBackground
+            style={tabStyles.modalContainer}
+            source={whiteBox}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Do you wish to log out?</Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => auth.signOut()}>
+              <ImageBackground
+                style={tabStyles.modalButtons}
+                source={whiteBox}
+                tintColor={"#EDEDED"}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Log out</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => setModalVisible(false)}>
+              <ImageBackground
+                style={tabStyles.modalButtons}
+                source={whiteBox}
+                tintColor={"#EDEDED"}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>Back</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+          </ImageBackground>
+        </SafeAreaView>
+      </Modal>
 
       <View style={styles.navButtonContainer}>
         <NavigationButton
@@ -199,7 +234,7 @@ const tabStyles = StyleSheet.create({
   },
   buttonContainer: {
     height: 50,
-    marginTop: 5,
+    marginTop: 15,
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 30,
@@ -209,7 +244,7 @@ const tabStyles = StyleSheet.create({
   },
   logOutContainer: {
     height: 50,
-    marginTop: 5,
+    marginTop: 15,
     marginLeft: 100,
     marginRight: 100,
     marginBottom: 5,
@@ -218,7 +253,26 @@ const tabStyles = StyleSheet.create({
     justifyContent: "center",
     resizeMode: "cover",
     overflow: "hidden"
-  }
+  },
+  modalContainer: {
+    height: 150,
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  },
+  modalButtons: {
+    height: 35,
+    width: 200,
+    marginVertical: 5,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
+  },
 });
 
 export default profile 

@@ -7,6 +7,8 @@ import {
   ImageBackground,
   FlatList,
   View,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native'
 import {
   collection,
@@ -25,6 +27,8 @@ import { NavigationButton } from '@/components/nav-button';
 
 import whiteBox from '@/assets/images/white-box.png';
 import homeIcon from '@/assets/images/home.png';
+import CustomHeader from '@/components/header';
+import BackButton from '@/components/back-button';
 
 type ItemData = {
     displayName: string,
@@ -42,11 +46,14 @@ const activerequests = () => {
   const requestsReceivedCollection = collection(db, `/users/${user?.uid}/requestsReceived`);
 
   const [requests, setRequests] = useState<any>([]);
+  const [isLoading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const handleModal = () => setIsModalVisible(() => !isModalVisible);
 
   useEffect(() => {
+    setLoading(true);
     fetchRequests();
+    setLoading(false);
   }, [user])
 
   const fetchRequests = async () => {
@@ -84,7 +91,7 @@ const activerequests = () => {
 
   const renderItem = ({item}: {item: ItemData}) => {
     return (
-      <Pressable onPress={handleModal}>
+      <TouchableOpacity activeOpacity={0.7} onPress={handleModal}>
         <ImageBackground 
           style={tabStyles.buttonContainer}
           source={whiteBox}
@@ -97,7 +104,7 @@ const activerequests = () => {
                 source={whiteBox}
               >
                 <Text style={{ fontSize: 20, fontWeight: "bold" }}>Accept {item.displayName}'s request?</Text>
-                <Pressable onPress={() => updateLinkingRequest(item, true)}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => updateLinkingRequest(item, true)}>
                   <ImageBackground
                     style={tabStyles.modalButtons}
                     source={whiteBox}
@@ -105,8 +112,8 @@ const activerequests = () => {
                   >
                     <Text style={{ fontSize: 20, fontWeight: "bold" }}>Accept</Text>
                   </ImageBackground>
-                </Pressable>
-                <Pressable onPress={() => updateLinkingRequest(item, false)}>
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => updateLinkingRequest(item, false)}>
                   <ImageBackground
                     style={tabStyles.modalButtons}
                     source={whiteBox}
@@ -114,12 +121,12 @@ const activerequests = () => {
                   >
                     <Text style={{ fontSize: 20, fontWeight: "bold" }}>Reject</Text>
                   </ImageBackground>
-                </Pressable>
+                </TouchableOpacity>
               </ImageBackground>
             </SafeAreaView>
           </Modal>
         </ImageBackground>
-      </Pressable>
+      </TouchableOpacity>
     )
   }
 
@@ -128,16 +135,27 @@ const activerequests = () => {
       style={styles.backgroundContainer}
       colors={gradientColor}
     >
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerStyle}>Recieved Requests</Text>
-      </View>
+      <CustomHeader
+        leftChildren={<BackButton/>}
+        centerChildren={
+          <Text style={{ ...styles.headerStyle, fontSize: 30, marginBottom: 10 }}>Recieved Requests</Text>
+        }
+      />
 
       <SafeAreaView style={styles.contentContainer}>
-        <FlatList
-          style={{ height: 150 }}
-          data={requests}
-          renderItem={renderItem}
-        />
+        {isLoading ? <ActivityIndicator size={"large"} color={"#EDEDED"}/> : 
+          <>
+            {requests.length == 0 ?
+              <Text style={{ fontSize: 20, alignSelf: "center", marginTop: 20 }}>Nothing to see here!</Text>
+                :
+              <FlatList
+                style={{ height: 150 }}
+                data={requests}
+                renderItem={renderItem}
+              />
+            }
+          </>
+        }
       </SafeAreaView>
 
       <View style={styles.navButtonContainer}>
