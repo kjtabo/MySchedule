@@ -196,7 +196,7 @@ const newactivity = () => {
     });
 
     setLoading(false);
-    router.replace(`/therapist/details/${uid}` as Href);
+    router.replace({pathname: `/therapist/details`, params: {uid: uid, patientName: patientName}});
   }
 
   return (
@@ -207,7 +207,7 @@ const newactivity = () => {
       <CustomHeader
         leftChildren={<BackButton/>}
         centerChildren={
-          <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+          <Text style={{ ...styles.headerStyle, textTransform: "capitalize", fontSize: 30 }}>
             {patientName} 
           </Text>
         }
@@ -284,14 +284,14 @@ const newactivity = () => {
               editable={false}
             />
           </Pressable>
-          {isDeadlineOpen && (
+          {isDeadlineOpen ?
             <DateTimePicker
               mode='time'
               display='spinner'
               value={deadline}
               onChange={onChangeDeadline}
-            />
-          )}
+            /> : <></>
+          }
           {isDeadlineOpen && Platform.OS === "ios" && (
             <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
               <Button title="cancel" onPress={() => setDeadlineOpen(false)}/>
@@ -432,30 +432,30 @@ const newactivity = () => {
           </TouchableOpacity>
         }
         
-        {isSelectStartOpen && (
+        {isSelectStartOpen ? 
           <DateTimePicker
             mode='date'
             display='spinner'
             value={startDate}
             minimumDate={new Date()}
             onChange={onChangeStart}
-          />
-        )}
+          /> : <></>
+        }
         {isSelectStartOpen && Platform.OS === "ios" && (
           <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
             <Button title="cancel" onPress={() => setSelectStartOpen(false)}/>
             <Button title="submit" onPress={confirmStartIOS}/>
           </View>
         )} 
-        {isSelectEndOpen && (
+        {isSelectEndOpen ? 
           <DateTimePicker
             mode='date'
             display='spinner'
             value={endDate}
             minimumDate={new Date()}
             onChange={onChangeEnd}
-          />
-        )}
+          /> : <></>
+        }
         {isSelectEndOpen && Platform.OS === "ios" && (
           <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
             <Button title="cancel" onPress={() => setSelectEndOpen(false)}/>

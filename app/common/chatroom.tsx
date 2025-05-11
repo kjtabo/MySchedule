@@ -115,11 +115,12 @@ const chatroom = () => {
       const messagesRef = collection(docRef, "messages");
       textRef.current = "";
       if (inputRef) inputRef?.current?.clear();
+      const currentTime = Timestamp.fromDate(new Date());
       await addDoc(messagesRef, {
         senderUID: user?.uid,
         senderName: user?.displayName,
         message: message,
-        createdOn: Timestamp.fromDate(new Date())
+        createdOn: currentTime
       });
       
       const token = "ExponentPushToken[vidUYsEKJdoQ4QsRUV9ewg]";

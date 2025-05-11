@@ -61,9 +61,9 @@ const notifs = () => {
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
               {item.item.title}
             </Text>
-            <Text style={{ fontSize: 15 }}>
+            {/* <Text style={{ fontSize: 15 }}>
               {item.item.read ? "Read" : "Unread"}
-            </Text>
+            </Text> */}
           </View>
           <Text style={{ fontSize: 20 }}>
             {item.item.body}

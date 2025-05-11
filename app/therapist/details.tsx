@@ -118,7 +118,7 @@ const patientdetail = () => {
       <CustomHeader
         leftChildren={<BackButton/>}
         centerChildren={
-          <Text style={{ ...styles.headerStyle, textTransform: "capitalize" }}>
+          <Text style={{ ...styles.headerStyle, textTransform: "capitalize", fontSize: 30 }}>
             {patientName} 
           </Text>
         }
